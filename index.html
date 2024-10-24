@@ -1,1 +1,2828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Room Navigation Game</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+
+</head>
+<body>
+    <div id="background"></div>
+    <div id="game">
+        <div id="note">~~~~~~~~~~Room Navigation Game~~~~~~~~~~</div>
+        <div id="note">Made by: Jaroda#3858</div>
+        <div id="datetime">Ngày: <span id="current-date">1/1/2024</span> - Thời gian: <span id="current-time">7:00 AM</span></div>
+        <div id="location">Bạn đang ở: <span id="current-room">phòng khách</span></div>
+        <div id="attributes">
+            <div>Tinh thần: <span id="morale">100%</span></div>
+            <div>Mệt mỏi: <span id="fatigue">0%</span></div>
+            <div>Đói: <span id="hunger">100</span></div>
+            <div>$$: <span id="Đồng">0</span></div>
+    
+        </div>
+            
+            <audio id="soundLivingRoom" src="path/to/sound1.mp3"></audio>
+            <audio id="soundstore" src="path/to/sound2.mp3"></audio>
+            <audio id="soundcar" src="path/to/sound3.mp3"></audio>
+            <audio id="sounddoor" src="path/to/sound4.mp3"></audio>
+            <audio id="soundgarden" src="path/to/sound5.mp3"></audio>
+            <audio id="soundfootstep" src="path/to/sound6.mp3"></audio>
+            <audio id="soundpick" src="path/to/sound7.mp3"></audio>
+            <audio id="soundplant" src="path/to/sound8.mp3"></audio>
+            <audio id="soundthoach" src="path/to/sound9.mp3"></audio>
+            <audio id="cash" src="path/to/sound10.mp3"></audio>
+            <audio id="cash2" src="path/to/sound12.mp3"></audio>
+            <audio id="eat1" src="path/to/sound11.mp3"></audio>
+            <audio id="eat2" src="path/to/sound13.mp3"></audio>
+            <audio id="coin" src="path/to/coin.mp3"></audio>
+            <audio id="drink" src="path/to/sound14.mp3"></audio>
+            <audio id="wood" src="path/to/sound15.mp3"></audio>
+            <audio id="whouse" src="path/to/sound16.mp3"></audio>
+            <audio id="chopping" src="path/to/sound17.mp3"></audio>
+            <audio id="opinv" src="path/to/sound18.mp3"></audio>
+            <audio id="clinv" src="path/to/sound19.mp3"></audio>
+            <audio id="checkinv" src="path/to/sound20.mp3"></audio>
+            <audio id="error" src="path/to/sound21.mp3"></audio>
+            <audio id="fishmiss" src="path/to/fishmiss.mp3"></audio>
+            <audio id="fish" src="path/to/catchedfish.mp3"></audio>
+
+
+
+
+
+        <div id="navigation">
+            <button id="btn-phong-khach" onclick="moveTo('phòng khách')">Phòng khách</button>
+            <button id="btn-phong-ngu" onclick="moveTo('phòng ngủ')">Phòng ngủ</button>
+            <button id="btn-nha-bep" onclick="moveTo('nhà bếp')">Nhà bếp</button>
+            <button id="btn-phong-an" onclick="moveTo('phòng ăn')">Phòng ăn</button>
+            <button id="btn-kho" onclick="moveTo('kho')">Kho</button>
+            <button id="btn-san-vuon" onclick="moveTo('sân vườn')">Sân vườn</button>
+            <button id="btn-gian-hang" onclick="moveTo('Gian hàng')">Gian hàng</button>
+            <button id="btn-xe" onclick="moveTo('xe')">xe</button>
+            <button id="btn-sieu-thi" onclick="moveTo('siêu thị')">siêu thị</button>
+            <button id="btn-trang-trai" onclick="moveTo('trang trại')">trang trại</button>
+            <button id="btn-nha-trang-trai" onclick="moveTo('nhà trang trại')">nhà trang trại</button>
+            <button id="btn-chuong-trai" onclick="moveTo('chuồng trại')">Chuồng trại</button>
+            <button id="btn-chuong-bo" onclick="moveTo('chuồng bò')">Chuồng bò</button>
+        </div>
+        <div id="actions">
+            <button id="btn-xem-tivi" onclick="watchTV()">Xem tivi</button>
+            <button id="btn-ngu-1h" onclick="sleep(1)">Ngủ 1 chút</button>
+            <button id="btn-ngu-sang-mai" onclick="sleepUntilTomorrow()">Ngủ đến sáng mai</button>
+            
+        </div>
+        <div id="items">
+            <div id="item-list"></div>
+            <div id="food-options" style="display:none;"></div>
+        </div>
+        <button onclick="showGuide()">Hướng dẫn</button> 
+        <button onclick="showInventory()">túi đồ</button>
+        <button onclick="checkStatus()">Dụng cụ</button> 
+        <button onclick="showFoodOptions()">Đồ ăn</button>
+        
+        <div id="save-load">
+            <button id="save-game">Save Game</button>
+    <input type="file" id="load-game" style="display: none;" />
+    <button id="load-game-button" onclick="document.getElementById('load-game').click();">Load Game</button>
+    <button id="changelog-button">Changelog</button>
+    <button onclick="fastForward()">Skip 30m</button>
+    </div>
+<div id="version">v0.2.1</div>
+
+    <!-- Changelog Modal -->
+<div id="changelog-modal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Nhật ký cập nhật trò chơi:</h2>
+        <div id="changelog-content">
+            <!-- Changelog content will be inserted here -->
+        </div>
+    </div>
+</div>
+
+<div id="inventory-modal" class="modal2">
+    <div class="modal-content2">
+        <!-- <span class="close2" onclick="closeInventory()">&times;</span> -->
+        <div id="inventory-list"></div>
+        <button onclick="closeInventory()">Back</button>
+        <button onclick="checkInventory()">xem số lượng</button> 
+    </div>
+</div>
+
+<div id="fishingModal" class="modal4">
+    <div class="modal-content4">
+        <h3>Thực hiện chuỗi thao tác để câu cá</h3>
+        <div class="directions" id="directionDisplay"></div>
+        <div class="countdown" id="countdown">10</div>
+        <div id="successRateDisplay">Tỉ lệ bắt cá: 100%</div> <!-- Hiển thị tỉ lệ bắt cá -->
+    </div>
+</div>
+<!-- <script src="sample.js"></script> Link to the first JavaScript file -->
+    <script>
+        // Chuyển đổi thời gian hiện tại thành số nguyên
+function datetimeToInt(date) {
+    const minutes = date.getMinutes();
+    const hours = date.getHours();
+    const days = Math.floor((date - initialDate) / (1000 * 60 * 60 * 24));
+    return minutes + hours * 60 + days * 1440;
+}
+
+// Chuyển đổi số nguyên thành thời gian
+function intToDatetime(int) {
+    const days = Math.floor(int / 1440);
+    int %= 1440;
+    const hours = Math.floor(int / 60);
+    const minutes = int % 60;
+    const resultDate = new Date(initialDate);
+    resultDate.setDate(resultDate.getDate() + days);
+    resultDate.setHours(hours);
+    resultDate.setMinutes(minutes);
+    return resultDate;
+}
+
+// Chuyển đổi mảng statusItems thành đối tượng trước khi lưu
+function arrayToObject(array) {
+    let obj = {};
+    for (let i = 0; i < array.length; i++) {
+        obj[array[i]] = 1;
+    }
+    return obj;
+}
+
+// (khong dung`) Chuyển đổi đối tượng statusItems thành mảng sau khi tải
+function objectToArray(obj) {
+    return Object.keys(obj);
+}
+
+// Hàm lưu trò chơi vào tệp tải về
+const secretKey = "123r4tgg5343f3g4"; // Use a strong key and keep it secret
+
+function saveGame() {
+    const currentTimeInt = datetimeToInt(currentDate);
+    const saveData = {
+        currentTime: currentTimeInt,
+        currentRoom: currentRoom,
+        inventory: inventory,
+        statusItems: statusItems,
+        morale: morale,
+        fatigue: fatigue,
+        hunger: hunger
+    };
+    
+    const saveDataString = JSON.stringify(saveData);
+    const encryptedData = CryptoJS.AES.encrypt(saveDataString, secretKey).toString();
+    
+    const blob = new Blob([encryptedData], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "savegame.txt";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+function loadGame(event) {
+    const file = event.target.files[0];
+    if (!file) {
+        return;
+    }
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const encryptedData = e.target.result;
+        try {
+            const decryptedData = CryptoJS.AES.decrypt(encryptedData, secretKey).toString(CryptoJS.enc.Utf8);
+            const saveData = JSON.parse(decryptedData);
+            if (saveData) {
+                currentDate = intToDatetime(saveData.currentTime);
+                currentRoom = saveData.currentRoom;
+                inventory = saveData.inventory;
+                statusItems = saveData.statusItems;
+                morale = saveData.morale;
+                fatigue = saveData.fatigue;
+                hunger = saveData.hunger;
+                updateDisplay();
+                updateAttributes();
+                updateItems();
+                updateNavigation();
+                updateActions();
+                updateBackground();
+                alert("Game loaded!");
+            } else {
+                alert("Invalid save file!");
+            }
+        } catch (error) {
+            alert("Failed to load game. The file might be corrupted or tampered with.");
+        }
+    };
+    reader.readAsText(file);
+}
+
+
+function updateDisplay() {
+    const options = { hour: 'numeric', minute: 'numeric', hour12: true };
+    document.getElementById("current-date").innerText = currentDate.toLocaleDateString();
+    document.getElementById("current-time").innerText = currentDate.toLocaleTimeString();
+    document.getElementById("morale").innerText = `${morale}%`;
+    document.getElementById("fatigue").innerText = `${fatigue}%`;
+    document.getElementById("hunger").innerText = `${hunger}%`;
+}
+
+function showInventory() {
+    updateAttributes();
+    document.getElementById("opinv").play();
+    const inventoryModal = document.getElementById('inventory-modal');
+    const inventoryList = document.getElementById('inventory-list');
+    inventoryList.innerHTML = '';
+
+    for (const item in inventory) {
+        const button = document.createElement('button');
+        button.innerText = item;
+        button.className = 'inventory-button'; // Add the CSS class
+        button.onclick = () => alert(`${item} ${itemDescriptions[item]} ${inventory[item]} ${item}`);
+        inventoryList.appendChild(button);
+    }
+
+    inventoryModal.style.display = 'block';
+}
+
+
+
+        function closeInventory() {
+            document.getElementById("clinv").play();
+            document.getElementById('inventory-modal').style.display = 'none';
+        }
+
+        // Event listener to close the modal when clicking outside of it
+        window.onclick = function(event) {
+            const inventoryModal = document.getElementById('inventory-modal');
+            if (event.target == inventoryModal) {
+                inventoryModal.style.display = 'none';
+            }
+        }
+
+        alert("Chào Mừng đến với Room Navigation Game !!\n+xem hướng dẫn ở nút <hướng dẫn> phía dưới để biết cách chơi.\n+Changelog để xem chi tiết cập nhật.\nHave Fun :3!");
+        const rooms = {
+            "phòng khách": [],
+            "phòng ngủ": [],
+            "nhà bếp": [],
+            "phòng ăn": [],//["vật phẩm 5"]
+            "kho": [], 
+            "sân vườn": [],
+            "xe": [],
+            "siêu thị": [],
+            "Gian hàng": [],
+            "trang trại": [],
+            "chuồng trại": [],
+            "chuồng bò": [],
+            "nhà trang trại": []
+        };
+        const itemDescriptions = {
+            "hạt giống": "dùng để trồng cây và bạn đang có",
+            "Đồng": "dùng để trao đổi mua hoặc bán vật phẩm và bạn đang có"
+        };
+      
+    
+        
+        let initialDate = new Date(2024, 0, 1, 7, 0); // January 1, 2024, 7:00 AM
+        let currentRoom = "phòng khách";
+        let inventory = { "hạt giống": 1, "Đồng": 50};
+        let statusItems = {};
+        let currentDate = new Date(2024, 0, 1, 7, 0); // January 1, 2024, 7:00 AM
+        let plantTime = null;
+        let eggTime1 = null;
+        let eggTime2 = null;
+        let eggTime3 = null;
+        let eggTime4 = null;
+        let eggTime5 = null;
+        let milkTime1 = null;
+        let milkTime2 = null;
+        let milkTime3 = null;
+        let milkTime4 = null;
+        let milkTime5 = null;
+        let morale = 100;
+        let fatigue = 0;
+        let hunger = 100;
+        let lastTVWatch = null;
+        let lastSleep = null;
+        let showSeedOptions = false;
+        let showUpgradeOptions = false;
+        let showAnimalOptions = false;
+        let showAnimalFoodOptions = false;
+        let showItemsOptions = false;
+        
+
+        //let pickedItems = [];
+        //vtri savedatetime
+        document.getElementById("save-game").addEventListener("click", saveGame);
+        document.getElementById("load-game").addEventListener("change", loadGame);
+        updateDisplay();
+        
+        // btnphongkhach.onclick = function() {
+        //     soundLivingRoom.play();
+        //     currentRoom = "phòng khách";
+        //     // Update time and attributes
+        //     updateTime(10); // Example: add 10 minutes
+        //     updateAttributes();
+        //     alert("Bạn đang ở phòng khách.");
+        // };
+        
+        const startFishingBtn = document.getElementById("startFishingBtn");
+        const fishingModal = document.getElementById("fishingModal");
+        const countdownElement = document.getElementById("countdown");
+        const directionDisplay = document.getElementById("directionDisplay");
+        const inventoryBtn = document.getElementById("inventoryBtn");
+        const successRateDisplay = document.getElementById("successRateDisplay");
+
+        let randomSequence = [];
+        let userSequence = [];
+        let timeLeft = 10;
+        let timer;
+        let currentIndex = 0; // Theo dõi vị trí hiện tại của chuỗi
+        // let fishCaught = 0; // Số lượng cá đã câu
+        let successRate = 100; // Tỉ lệ bắt cá
+
+        // Bản đồ nút điều khiển thực tế
+        const keyBindings = {
+            'w': 'w',
+            's': 's',
+            'a': 'a',
+            'd': 'd'
+        };
+
+        // Bản đồ hiển thị tương ứng
+        const displayBindings = {
+            'w': '^',
+            's': 'v',
+            'a': '<',
+            'd': '>'
+        };
+
+        const keys = ['w', 's', 'a', 'd'];
+
+        // Function to generate a random sequence of 5 directions
+        function generateRandomSequence() {
+            randomSequence = [];
+            userSequence = [];
+            currentIndex = 0; // Đặt lại chỉ số vị trí
+            for (let i = 0; i < 15; i++) {
+                randomSequence.push(keys[Math.floor(Math.random() * keys.length)]);
+            }
+            updateDirectionDisplay();
+            console.log("Chuỗi ngẫu nhiên:", randomSequence); // Log ra chuỗi ngẫu nhiên
+        }
+
+        // Function to update direction display with color coding for correctness
+        function updateDirectionDisplay() {
+            let displayHTML = '';
+            for (let i = 0; i < randomSequence.length; i++) {
+                if (i < userSequence.length) {
+                    if (userSequence[i] === randomSequence[i]) {
+                        displayHTML += `<span class="correct">${displayBindings[randomSequence[i]]}</span> `;
+                    } else {
+                        displayHTML += `<span class="incorrect">${displayBindings[randomSequence[i]]}</span> `;
+                    }
+                } else {
+                    displayHTML += `<span>${displayBindings[randomSequence[i]]}</span> `;
+                }
+            }
+            directionDisplay.innerHTML = displayHTML;
+        }
+
+        // Function to start the countdown
+        function startCountdown() {
+            timeLeft = 10;
+            countdownElement.textContent = timeLeft;
+            timer = setInterval(() => {
+                timeLeft--;
+                countdownElement.textContent = timeLeft;
+                if (timeLeft === 0) {
+                    clearInterval(timer);
+                    checkResult(false);
+                }
+            }, 1000);
+        }
+
+        // Function to check the result
+        function checkResult(isSuccessful) {
+            let isCaughtFish = Math.random() * 100 < successRate; // Kiểm tra có câu được cá hay không dựa trên tỉ lệ
+            if (isSuccessful && isCaughtFish) {
+                // fishCaught++;
+                document.getElementById("fish").play();
+                    inventory["cá"] = (inventory["cá"] || 0) + 1;
+                hunger = Math.min(hunger - 1, 300);
+        if (hunger < 0) hunger = 0;
+                fatigue = Math.min(fatigue + 2, 100); // Giảm 5% mệt mỏi fixed                
+                morale = Math.min(morale + 5, 100); // Cộng 5% tinh thần
+                alert("Bạn đã câu được cá!");
+            } else {
+                alert("Câu cá thất bại!");
+                hunger = Math.min(hunger - 1, 300);
+        if (hunger < 0) hunger = 0;
+        if (morale < 0) morale = 0;
+                fatigue = Math.min(fatigue + 2, 100); // Giảm 5% mệt mỏi fixed                
+                morale = Math.min(morale - 2, 100); // Cộng 5% tinh thần
+            }
+            // inventoryBtn.textContent = "Túi đồ: " + fishCaught + " cá"; // Cập nhật số lượng cá trong túi
+            closeModal();
+        }
+
+        // Function to close modal
+        function closeModal() {
+            fishingModal.style.display = "none";
+            clearInterval(timer);
+            userSequence = [];
+            currentIndex = 0; // Đặt lại chỉ số vị trí
+            successRate = 100; // Đặt lại tỉ lệ bắt cá
+            successRateDisplay.textContent = "Tỉ lệ bắt cá: 100%"; // Reset tỉ lệ bắt cá
+            document.removeEventListener('keydown', handleKeydown);
+            updateAttributes();
+                updateActions();
+                updateItems();
+        }
+
+        // Handle keyboard input
+        function handleKeydown(event) {
+            const key = event.key.toLowerCase();
+            if (keyBindings[key]) {
+                handleKeyPress(keyBindings[key]);
+            }
+        }
+
+        // Function to handle key presses
+        function handleKeyPress(key) {
+            // Chỉ cho phép nhập tiếp khi ký tự đúng ở vị trí hiện tại
+            if (key === randomSequence[currentIndex]) {
+                userSequence[currentIndex] = key;
+                currentIndex++; // Chuyển sang ký tự tiếp theo
+                updateDirectionDisplay();
+
+                // Kiểm tra nếu người chơi hoàn thành chuỗi
+                if (currentIndex === randomSequence.length) {
+                    clearInterval(timer);
+                    checkResult(true);
+                }
+            } else {
+                // Nếu nhập sai, giảm tỉ lệ bắt cá và chỉ đổi màu ký tự bị sai mà không hiển thị ký tự đã nhập
+                successRate -= 35; // Giảm tỉ lệ bắt cá
+                userSequence[currentIndex] = null; // Đánh dấu là nhập sai
+                successRateDisplay.textContent = "Tỉ lệ bắt cá: " + successRate + "%"; // Cập nhật tỉ lệ bắt cá
+                updateDirectionDisplay();
+            }
+        }
+
+
+function updateBackground() {
+    const backgroundElement = document.getElementById('background');
+    backgroundElement.className = ''; // Clear any existing classes
+    switch (currentRoom) {
+        case 'phòng khách':
+            backgroundElement.classList.add('background-phong-khach');
+            break;
+        case 'phòng ngủ':
+            backgroundElement.classList.add('background-phong-ngu');
+            break;
+        case 'nhà bếp':
+            backgroundElement.classList.add('background-nha-bep');
+            break;
+        case 'phòng ăn':
+            backgroundElement.classList.add('background-phong-an');
+            break;
+        case 'kho':
+            backgroundElement.classList.add('background-kho');
+            break;
+        case 'sân vườn':
+            backgroundElement.classList.add('background-san-vuon');
+            break;
+        case 'Gian hàng':
+            backgroundElement.classList.add('background-gian-hang');
+            break;
+        case 'xe':
+            backgroundElement.classList.add('background-xe');
+            break;
+        case 'siêu thị':
+            backgroundElement.classList.add('background-sieu-thi');
+            break;
+        case 'trang trại':
+            backgroundElement.classList.add('background-farm');
+            break;
+        case 'chuồng trại':
+            backgroundElement.classList.add('background-chuongtrai');
+            break;
+        case 'chuồng bò':
+            backgroundElement.classList.add('background-chuongbo');
+            break;
+        case 'nhà trang trại':
+            backgroundElement.classList.add('background-nha-trang-trai');
+            break;
+    }
+}
+
+
+//function updateItems
+function updateItems() {
+    
+            const itemList = document.getElementById("item-list");
+            itemList.innerHTML = "";
+
+            rooms[currentRoom].forEach(item => {
+                if (!inventory[item]) {
+                    const button = document.createElement("button");
+                    button.innerText = `Lấy ${item}`;
+                    button.onclick = () => pickItem(item);
+                    itemList.appendChild(button);
+                }
+            });
+            //tai phong khach
+            if (currentRoom === "phòng khách") {
+                if (!statusItems["chìa khóa kho"]) {
+                    const khoakhobtn = document.createElement("button");
+                    khoakhobtn.innerText = "lấy chìa khoá kho";
+                    khoakhobtn.onclick = khoakho;
+                    itemList.appendChild(khoakhobtn);
+                }
+            }
+            //tai san vuon
+            if (currentRoom === "sân vườn") {
+                if (inventory["hạt giống"] > 0 && !plantTime /*|| !inventory["hạt giống"]*/) {
+                    const plantButton = document.createElement("button");
+                    plantButton.innerText = "Trồng cây";
+                    plantButton.onclick = plantTree;
+                    itemList.appendChild(plantButton);
+                }
+                if (plantTime && (currentDate - plantTime >= 2 * 60 * 60 * 1000)) { // 2 hours
+                    const harvestButton = document.createElement("button");
+                    harvestButton.innerText = "Thu hoạch";
+                    harvestButton.onclick = harvestTree;
+                    itemList.appendChild(harvestButton);
+                }
+                
+
+                //cau ca
+                const fishButton = document.createElement("button");
+                fishButton.innerText = "Câu cá";
+                fishButton.onclick = fish;
+                itemList.appendChild(fishButton);
+            }
+            
+
+
+            // tai nha bep
+            if (currentRoom === "nhà bếp") {
+            if (inventory["trái cây"] > 0 && statusItems["dao bếp"]) {
+            const cutFruitButton = document.createElement("button");
+            cutFruitButton.innerText = "Cắt trái cây";
+            cutFruitButton.onclick = cutFruit;
+            itemList.appendChild(cutFruitButton);
+            }}
+
+            if (currentRoom === "nhà bếp") {
+            if (inventory["cá phi lê"] > 0 && statusItems["chảo chiên"]) {
+            const chiencaButton = document.createElement("button");
+            chiencaButton.innerText = "Chiên cá";
+            chiencaButton.onclick = chienCa;
+            itemList.appendChild(chiencaButton);
+            }}
+
+            if (currentRoom === "nhà bếp") {
+            if (inventory["cá"] > 0 && statusItems["dao bếp"]) {
+                const cutpileButton = document.createElement("button");
+                cutpileButton.innerText = "Tạo thành cá phi lê";
+                cutpileButton.onclick = cutpile;
+                itemList.appendChild(cutpileButton);
+            }}
+        
+            if (currentRoom === "nhà bếp") {
+            if (inventory["trái cây cắt sẵn"] >= 10) {
+                const makeFruitPlateButton = document.createElement("button");
+                makeFruitPlateButton.innerText = "Tạo thành dĩa trái cây";
+                makeFruitPlateButton.onclick = makeFruitPlate;
+                itemList.appendChild(makeFruitPlateButton);
+            }}
+
+            if (currentRoom === "nhà bếp") {
+            if (!statusItems["dao bếp"]) {
+                const Button = document.createElement("button");
+                Button.innerText = "lấy dao bếp";
+                Button.onclick = laydao;
+                itemList.appendChild(Button);
+            }}
+
+            if (currentRoom === "nhà bếp") {
+            if (!statusItems["chảo chiên"]) {
+                const Button = document.createElement("button");
+                Button.innerText = "lấy chảo chiên";
+                Button.onclick = chaochien;
+                itemList.appendChild(Button);
+            }}
+
+            if (currentRoom === "nhà bếp") {
+            if (inventory["gói Cà phê"] > 0 && statusItems["Máy pha Cà phê"]) {
+                const Button = document.createElement("button");
+                Button.innerText = "Tạo thành ly Cà phê";
+                Button.onclick = makecoffe;
+                itemList.appendChild(Button);
+            }}
+
+            //tai gian hang
+            if (currentRoom === "Gian hàng") {
+                if (inventory["dĩa trái cây"] > 0) {
+                const sellFruitPlateButton = document.createElement("button");
+                sellFruitPlateButton.innerText = "Bán dĩa trái cây";
+                sellFruitPlateButton.onclick = sellFruitPlate;
+                itemList.appendChild(sellFruitPlateButton);
+            }}
+
+            if (currentRoom === "Gian hàng") {
+                if (inventory["cá chiên"] > 0) {
+                const bancachienButton = document.createElement("button");
+                bancachienButton.innerText = "Bán cá chiên";
+                bancachienButton.onclick = bancachien;
+                itemList.appendChild(bancachienButton);
+            }}
+
+            // if (currentRoom === "Gian hàng") {
+            //     if (inventory["hạt giống"] > 0) {
+            //     const banhatgiongButton = document.createElement("button");
+            //     banhatgiongButton.innerText = "Bán hạt giống";
+            //     banhatgiongButton.onclick = banhatgiong;
+            //     itemList.appendChild(banhatgiongButton);
+            // }}
+
+            if (currentRoom === "Gian hàng") {
+                if (inventory["trái cây cắt sẵn"] > 0) {
+                const bantraicayButton = document.createElement("button");
+                bantraicayButton.innerText = "Bán trái cây cắt sẵn";
+                bantraicayButton.onclick = bantraicay;
+                itemList.appendChild(bantraicayButton);
+            }}
+            //tai phong an
+            if (currentRoom === "phòng ăn") {
+                if (inventory["trái cây cắt sẵn"] > 0 ) {
+                    const eatfoodButton = document.createElement("button");
+                    eatfoodButton.innerText = "ăn trái cây cắt sẵn";
+                    eatfoodButton.onclick = eatfood;
+                    itemList.appendChild(eatfoodButton);
+                }
+                
+                if (inventory["Cà phê"] > 0 ) {
+                    const eatfoodButton = document.createElement("button");
+                    eatfoodButton.innerText = "Uống Cà phê";
+                    eatfoodButton.onclick = drinkcoffe;
+                    itemList.appendChild(eatfoodButton);
+                }
+
+                if (inventory["bánh"] > 0 ) {
+                    const ecakeButton = document.createElement("button");
+                    ecakeButton.innerText = "ăn bịch bánh";
+                    ecakeButton.onclick = eatcake;
+                    itemList.appendChild(ecakeButton);
+                }
+            }
+
+
+
+                if (currentRoom === "kho") {
+                if (!statusItems["chìa khoá xe"]) {
+                    const Button = document.createElement("button");
+                    Button.innerText = "lấy chìa khoá xe";
+                    Button.onclick = khoaxe;
+                    itemList.appendChild(Button);
+                }}
+
+                if (currentRoom === "kho") {
+                if (!statusItems["Xẻng làm vườn"]) {
+                    const Button = document.createElement("button");
+                    Button.innerText = "lấy Xẻng làm vườn";
+                    Button.onclick = xengvuon;
+                    itemList.appendChild(Button);
+                }}
+
+                //tai trang trai
+                if (currentRoom === "trang trại") {
+        // if (inventory["chìa khóa xe"]) {
+            
+            //if (!showSeedOptions && !showUpgradeOptions) {
+                // const muacancauButton = document.createElement("button");
+                // muacancauButton.innerText = "Mua cần câu";
+                // muacancauButton.onclick = muacancau;
+                // itemList.appendChild(muacancauButton);
+            //}
+            
+            //showUpgradeOptions
+            const animalButton = document.createElement("button");
+            animalButton.innerText = "mua động vật";
+            animalButton.onclick = () => {
+                showAnimalOptions = !showAnimalOptions;
+                if (showAnimalOptions) {
+                    showAnimalFoodOptions = false;}
+                updateItems();
+            };
+            itemList.appendChild(animalButton);
+
+            const animalfoodButton = document.createElement("button");
+            animalfoodButton.innerText = "mua thức ăn động vật";
+            animalfoodButton.onclick = () => {
+                showAnimalFoodOptions = !showAnimalFoodOptions;
+                if (showAnimalFoodOptions) {
+                    showAnimalOptions = false;}
+                updateItems();
+            };
+            itemList.appendChild(animalfoodButton);
+
+            if (showAnimalOptions) {
+                
+                const AnimalOptionsContainer = document.createElement("div");
+                const muagaButton = document.createElement("button");
+                muagaButton.innerText = "mua gà";
+                muagaButton.onclick = function() {
+                    if (inventory["gà"] >= 5) {
+                        alert("Bạn chỉ có thể mua tối đa 5 con gà.");
+                    } else {
+                        muaga(); // Gọi hàm mua gà nếu số lượng chưa đủ 5
+                    }
+                };
+                AnimalOptionsContainer.appendChild(muagaButton);
+
+                const muaboButton = document.createElement("button");
+                muaboButton.innerText = "mua bò";
+                muaboButton.onclick = function() {
+                    if (inventory["bò"] >= 5) {
+                        alert("Bạn chỉ có thể mua tối đa 5 con bò.");
+                    } else {
+                        muabo(); // Gọi hàm mua gà nếu số lượng chưa đủ 5
+                    }
+                };
+                AnimalOptionsContainer.appendChild(muaboButton);
+
+                // const muahatgiong3Button = document.createElement("button");
+                // muahatgiong3Button.innerText = "Hạt giống x3";
+                // muahatgiong3Button.onclick = muahatgiong3;
+                // seedOptionsContainer.appendChild(muahatgiong3Button);
+
+                // const muahatgiong5Button = document.createElement("button");
+                // muahatgiong5Button.innerText = "Hạt giống x5";
+                // muahatgiong5Button.onclick = muahatgiong5;
+                // seedOptionsContainer.appendChild(muahatgiong5Button);
+
+                itemList.appendChild(AnimalOptionsContainer);
+                return;
+            }
+            
+            if (showAnimalFoodOptions) {
+                const AnimalFoodOptionsContainer = document.createElement("div");
+                const foodmuagaButton = document.createElement("button");
+                foodmuagaButton.innerText = "thức ăn gà";
+                foodmuagaButton.onclick = foodmuaga;
+                AnimalFoodOptionsContainer.appendChild(foodmuagaButton);
+
+                const foodmuaboButton = document.createElement("button");
+                foodmuaboButton.innerText = "thức ăn bò";
+                foodmuaboButton.onclick = foodmuabo;
+                AnimalFoodOptionsContainer.appendChild(foodmuaboButton);
+                
+                //them o nang cap
+                // const muahatgiong3Button = document.createElement("button");
+                // muahatgiong3Button.innerText = "testt";
+                // muahatgiong3Button.onclick = muahatgiong3;
+                // UpgradeOptionsContainer.appendChild(muahatgiong3Button);
+
+                itemList.appendChild(AnimalFoodOptionsContainer);
+                }
+
+                
+                }
+                //hoho
+                    if (currentRoom === "chuồng trại") {
+                if (inventory["thức ăn gà"] > 0 && !eggTime1 && inventory["gà"] > 0) {
+                    const plantButton1 = document.createElement("button");
+                    plantButton1.innerText = "cho gà ăn s1";
+                    plantButton1.onclick = feedchicken1;
+                    itemList.appendChild(plantButton1);
+                }
+                if (eggTime1 && (currentDate - eggTime1 >= 6 * 60 * 60 * 1000)) { // 6 hours
+                    const harvestButton1 = document.createElement("button");
+                    harvestButton1.innerText = "Thu hoạch trứng s1";
+                    harvestButton1.onclick = harvestegg1;
+                    itemList.appendChild(harvestButton1);
+                }
+
+                if (inventory["thức ăn gà"] > 0 && !eggTime2 && inventory["gà"] > 1) {
+                    const plantButton2 = document.createElement("button");
+                    plantButton2.innerText = "cho gà ăn s2";
+                    plantButton2.onclick = feedchicken2;
+                    itemList.appendChild(plantButton2);
+                }
+                if (eggTime2 && (currentDate - eggTime2 >= 6 * 60 * 60 * 1000)) { // 6 hours
+                    const harvestButton2 = document.createElement("button");
+                    harvestButton2.innerText = "Thu hoạch trứng s2";
+                    harvestButton2.onclick = harvestegg2;
+                    itemList.appendChild(harvestButton2);
+                }
+
+                if (inventory["thức ăn gà"] > 0 && !eggTime3 && inventory["gà"] > 2) {
+                    const plantButton3 = document.createElement("button");
+                    plantButton3.innerText = "cho gà ăn s3";
+                    plantButton3.onclick = feedchicken3;
+                    itemList.appendChild(plantButton3);
+                }
+                if (eggTime3 && (currentDate - eggTime3 >= 6 * 60 * 60 * 1000)) { // 6 hours
+                    const harvestButton3 = document.createElement("button");
+                    harvestButton3.innerText = "Thu hoạch trứng s3";
+                    harvestButton3.onclick = harvestegg3;
+                    itemList.appendChild(harvestButton3);
+                }
+
+                if (inventory["thức ăn gà"] > 0 && !eggTime4 && inventory["gà"] > 3) {
+                    const plantButton4 = document.createElement("button");
+                    plantButton4.innerText = "cho gà ăn s4";
+                    plantButton4.onclick = feedchicken4;
+                    itemList.appendChild(plantButton4);
+                }
+                if (eggTime4 && (currentDate - eggTime4 >= 6 * 60 * 60 * 1000)) { // 6 hours
+                    const harvestButton4 = document.createElement("button");
+                    harvestButton4.innerText = "Thu hoạch trứng s4";
+                    harvestButton4.onclick = harvestegg4;
+                    itemList.appendChild(harvestButton4);
+                }
+
+                if (inventory["thức ăn gà"] > 0 && !eggTime5 && inventory["gà"] > 4) {
+                    const plantButton5 = document.createElement("button");
+                    plantButton5.innerText = "cho gà ăn s5";
+                    plantButton5.onclick = feedchicken5;
+                    itemList.appendChild(plantButton5);
+                }
+                if (eggTime5 && (currentDate - eggTime5 >= 6 * 60 * 60 * 1000)) { // 6 hours
+                    const harvestButton5 = document.createElement("button");
+                    harvestButton5.innerText = "Thu hoạch trứng s5";
+                    harvestButton5.onclick = harvestegg5;
+                    itemList.appendChild(harvestButton5);
+                }
+            }
+
+            if (currentRoom === "chuồng bò") {
+                if (inventory["thức ăn bò"] > 0 && !milkTime1 && inventory["bò"] > 0) { 
+                const feedButton1 = document.createElement("button"); 
+                feedButton1.innerText = "cho bò ăn s1"; 
+                feedButton1.onclick = feedCow1; // Thay vì gọi chính nó, gọi hàm feedCow1
+                itemList.appendChild(feedButton1);
+            }
+            if (milkTime1 && (currentDate - milkTime1 >= 8 * 60 * 60 * 1000)) { // 8 hours 
+                const milkingButton1 = document.createElement("button");
+                milkingButton1.innerText = "Thu hoạch sữa s1";
+                milkingButton1.onclick = milking1;
+                itemList.appendChild(milkingButton1);
+            }
+
+            if (inventory["thức ăn bò"] > 0 && !milkTime2 && inventory["bò"] > 1) { 
+                const feedButton2 = document.createElement("button"); 
+                feedButton2.innerText = "cho bò ăn s2"; 
+                feedButton2.onclick = feedCow2; // Hàm feedCow2
+                itemList.appendChild(feedButton2);
+            }
+            if (milkTime2 && (currentDate - milkTime2 >= 8 * 60 * 60 * 1000)) { // 8 hours 
+                const milkingButton2 = document.createElement("button");
+                milkingButton2.innerText = "Thu hoạch sữa s2";
+                milkingButton2.onclick = milking2;
+                itemList.appendChild(milkingButton2);
+            }
+
+            if (inventory["thức ăn bò"] > 0 && !milkTime3 && inventory["bò"] > 2) { 
+                const feedButton3 = document.createElement("button"); 
+                feedButton3.innerText = "cho bò ăn s3"; 
+                feedButton3.onclick = feedCow3;
+                itemList.appendChild(feedButton3);
+            }
+            if (milkTime3 && (currentDate - milkTime3 >= 8 * 60 * 60 * 1000)) { 
+                const milkingButton3 = document.createElement("button");
+                milkingButton3.innerText = "Thu hoạch sữa s3";
+                milkingButton3.onclick = milking3;
+                itemList.appendChild(milkingButton3);
+            }
+
+            if (inventory["thức ăn bò"] > 0 && !milkTime4 && inventory["bò"] > 3) { 
+                const feedButton4 = document.createElement("button"); 
+                feedButton4.innerText = "cho bò ăn s4"; 
+                feedButton4.onclick = feedCow4;
+                itemList.appendChild(feedButton4);
+            }
+            if (milkTime4 && (currentDate - milkTime4 >= 8 * 60 * 60 * 1000)) { 
+                const milkingButton4 = document.createElement("button");
+                milkingButton4.innerText = "Thu hoạch sữa s4";
+                milkingButton4.onclick = milking4;
+                itemList.appendChild(milkingButton4);
+            }
+
+            if (inventory["thức ăn bò"] > 0 && !milkTime5 && inventory["bò"] > 4) { 
+                const feedButton5 = document.createElement("button"); 
+                feedButton5.innerText = "cho bò ăn s5"; 
+                feedButton5.onclick = feedCow5;
+                itemList.appendChild(feedButton5);
+            }
+            if (milkTime5 && (currentDate - milkTime5 >= 8 * 60 * 60 * 1000)) { 
+                const milkingButton5 = document.createElement("button");
+                milkingButton5.innerText = "Thu hoạch sữa s5";
+                milkingButton5.onclick = milking5;
+                itemList.appendChild(milkingButton5);
+            }
+
+
+            }
+
+                 //end tai trang trai
+
+            //tai sieu thi  
+            
+            if (currentRoom === "siêu thị") {
+                // const muacancauButton = document.createElement("button");
+                // muacancauButton.innerText = "Mua cần câu";
+                // muacancauButton.onclick = muacancau;
+                // itemList.appendChild(muacancauButton); them sau
+            
+            //showitems
+            const ItemsButton = document.createElement("button");
+            ItemsButton.innerText = "Mua vật phẩm";
+            ItemsButton.onclick = () => {
+                showItemsOptions = !showItemsOptions;
+                if (showItemsOptions) {//ham an option
+                showSeedOptions = false;
+                showUpgradeOptions = false}
+                updateItems();};
+            itemList.appendChild(ItemsButton);
+
+            //showUpgradeOptions
+            const nangcapButton = document.createElement("button");
+            nangcapButton.innerText = "Nâng cấp";
+            nangcapButton.onclick = () => {
+                showUpgradeOptions = !showUpgradeOptions;
+                if (showUpgradeOptions) {//ham an option
+                showSeedOptions = false;
+                showItemsOptions = false;}
+                updateItems();};
+            itemList.appendChild(nangcapButton);
+
+            const muaHatGiongButton = document.createElement("button");
+            muaHatGiongButton.innerText = "Mua hạt giống";
+            muaHatGiongButton.onclick = () => {
+                showSeedOptions = !showSeedOptions;
+                if (showSeedOptions) {
+                showUpgradeOptions = false;
+                showItemsOptions = false;}
+                updateItems();};
+            itemList.appendChild(muaHatGiongButton);
+        
+            if (showSeedOptions) {
+                const seedOptionsContainer = document.createElement("div");
+                const muahatgiongButton = document.createElement("button");
+                muahatgiongButton.innerText = "Hạt giống x1";
+                muahatgiongButton.onclick = muahatgiong;
+                seedOptionsContainer.appendChild(muahatgiongButton);
+
+                const muahatgiong3Button = document.createElement("button");
+                muahatgiong3Button.innerText = "Hạt giống x3";
+                muahatgiong3Button.onclick = muahatgiong3;
+                seedOptionsContainer.appendChild(muahatgiong3Button);
+
+                const muahatgiong5Button = document.createElement("button");
+                muahatgiong5Button.innerText = "Hạt giống x5";
+                muahatgiong5Button.onclick = muahatgiong5;
+                seedOptionsContainer.appendChild(muahatgiong5Button);
+
+                itemList.appendChild(seedOptionsContainer);
+                return;
+            }
+            
+            if (showUpgradeOptions) {
+                const UpgradeOptionsContainer = document.createElement("div");
+                const muatrangtraiButton = document.createElement("button");
+                muatrangtraiButton.innerText = "Trang trại";
+                muatrangtraiButton.onclick = muatrangtrai;
+                UpgradeOptionsContainer.appendChild(muatrangtraiButton);
+
+                const donghoButton= document.createElement("button");
+                donghoButton.innerText = "mua đồng hồ";
+                donghoButton.onclick = dongho;
+                UpgradeOptionsContainer.appendChild(donghoButton);
+
+                const muacancauButton = document.createElement("button");
+                muacancauButton.innerText = "Mua cần câu";
+                muacancauButton.onclick = muacancau;
+                UpgradeOptionsContainer.appendChild(muacancauButton);
+                
+                const Button= document.createElement("button");
+                Button.innerText = "Túi đồ ăn";
+                Button.onclick = foodbag;
+                UpgradeOptionsContainer.appendChild(Button);
+
+                const Button2= document.createElement("button");
+                Button2.innerText = "Máy pha Cà phê";
+                Button2.onclick = coffemachine;
+                UpgradeOptionsContainer.appendChild(Button2);
+                //them o nang cap
+                // const muahatgiong3Button = document.createElement("button");
+                // muahatgiong3Button.innerText = "testt";
+                // muahatgiong3Button.onclick = muahatgiong3;
+                // UpgradeOptionsContainer.appendChild(muahatgiong3Button);
+
+                itemList.appendChild(UpgradeOptionsContainer);
+                return;
+            }
+
+            if (showItemsOptions) {
+                const ItemsOptionsContainer = document.createElement("div");
+                const Button = document.createElement("button");
+                Button.innerText = "Gói Cà phê";
+                Button.onclick = coffe;
+                ItemsOptionsContainer.appendChild(Button);
+
+                const Button2= document.createElement("button");
+                Button2.innerText = "Bánh";
+                Button2.onclick = cake;
+                ItemsOptionsContainer.appendChild(Button2);
+
+                //them o nang cap
+                // const muahatgiong3Button = document.createElement("button");
+                // muahatgiong3Button.innerText = "testt";
+                // muahatgiong3Button.onclick = muahatgiong3;
+                // UpgradeOptionsContainer.appendChild(muahatgiong3Button);
+
+                itemList.appendChild(ItemsOptionsContainer);
+                return;
+            }
+
+                
+                } //sieu thi
+                    } //updateitem     
+                    
+            
+        
+
+        //function fish()
+        function fish() {
+            if (currentRoom === "sân vườn") {
+                if (!statusItems["cần câu"]) {
+        alert("bạn chưa có cần câu cá, có thể mua tại siêu thị.");
+        return;}
+            if (currentRoom === "sân vườn") {
+                if (fatigue > 90) {
+        alert("bạn quá mệt để câu.");
+        return;}}}
+        updateTime(10);
+    fishingModal.style.display = "flex";
+    generateRandomSequence();
+    startCountdown();
+    document.addEventListener('keydown', handleKeydown);
+}
+
+
+        function showFoodOptions() {
+    if (statusItems['túi đồ ăn']) {
+        // Show food options tui do an
+        let foodOptions = `<div>
+            <button onclick="eatFruit()">Ăn trái cây</button>
+            <button onclick="ddrinkcofe()">Uống cà phê</button>
+            <button onclick="eecake()">Ăn bánh</button>
+            <!-- Add more food options here as needed -->
+        </div>`;
+        document.getElementById("food-options").innerHTML = foodOptions;
+        document.getElementById("food-options").style.display = "block";
+    } else {
+        alert("Bạn chưa có túi đồ ăn, có thể nâng cấp túi đồ ăn tại siêu thị");
+    }
+}
+
+//function moveTo(room)        
+function moveTo(room) {
+
+    if (!statusItems["chìa khóa kho"] && room === "kho") {//sex
+        document.getElementById("error").play();
+        alert("Bạn cần chìa khóa để vào kho.");
+        return;
+    }
+    
+    if (room === "xe" && !statusItems["chìa khoá xe"]) {
+        document.getElementById("error").play();
+        alert("Bạn cần chìa khóa để vào xe.");
+        return;
+    }
+    
+    //new
+    if (currentRoom === "xe" && room === "siêu thị") {
+        if (fatigue > 90) {
+        alert("bạn quá mệt mỏi để lái xe");
+        return;}
+        
+        hunger = Math.min(hunger - 2, 300);
+        if (hunger < 0) hunger = 0;
+        fatigue = Math.min(fatigue + 5, 100);
+        updateAttributes();
+        alert("Bạn đã đến siêu thị sau 30 phút chạy xe. \n +5 Mệt mỏi \n -2 Đói.");
+        updateTime(30);
+    }
+    if (currentRoom === "siêu thị" && room === "xe") {
+        updateTime(30);
+        hunger = Math.min(hunger - 2, 300);
+        if (hunger < 0) hunger = 0;
+        fatigue = Math.min(fatigue + 5, 100);
+        updateAttributes();
+        alert("Bạn đã về nhà sau 30 phút chạy xe.\n +5 Mệt mỏi \n -2 Đói.");
+    }
+    if (currentRoom === "xe" && room === "trang trại") {
+        
+        if (fatigue > 90) {
+        alert("bạn quá mệt mỏi để lái xe");
+        return;}
+        
+        hunger = Math.min(hunger - 2, 300);
+        if (hunger < 0) hunger = 0;
+        fatigue = Math.min(fatigue + 5, 100);
+        updateAttributes();
+        alert("Bạn đã đến trang trại sau 30 phút chạy xe.\n +5 Mệt mỏi \n -2 Đói.");
+        updateTime(30);
+    }
+    if (currentRoom === "trang trại" && room === "xe") {
+        updateTime(30);
+        hunger = Math.min(hunger - 2, 300);
+        if (hunger < 0) hunger = 0;
+        fatigue = Math.min(fatigue + 5, 100);
+        updateAttributes();
+        alert("Bạn đã về nhà sau 30 phút chạy xe.\n +5 Mệt mỏi \n -2 Đói.");
+    }
+    if (currentRoom === "trang trại" && room === "siêu thị") {
+        hunger = Math.min(hunger - 2, 300);
+        if (hunger < 0) hunger = 0;
+        fatigue = Math.min(fatigue + 5, 100);
+        updateAttributes();
+        alert("Bạn đã đến siêu thị sau 30 phút chạy xe.\n +5 Mệt mỏi \n -2 Đói.");
+        updateTime(30);
+    }
+    if (currentRoom === "siêu thị" && room === "trang trại") {
+        updateTime(30);
+        hunger = Math.min(hunger - 2, 300);
+        if (hunger < 0) hunger = 0;
+        fatigue = Math.min(fatigue + 5, 100);
+        updateAttributes();
+        alert("Bạn đã đến trang trại sau 30 phút chạy xe.\n +5 Mệt mỏi \n -2 Đói.");
+    }
+    
+    currentRoom = room;
+    document.getElementById("current-room").innerText = currentRoom;
+    showSeedOptions = false;
+    showUpgradeOptions = false;
+    updateItems();
+    updateNavigation();
+    updateActions();
+    updateVisibility();
+    updateBackground();
+    updateTime(2);
+    // Deduct 1% fatigue when moving to a different room
+    fatigue = Math.min(fatigue + 1, 100);
+    
+    if (Math.random() < 0.5) { // 50% drop hunger
+        hunger = Math.min(hunger - 1, 300);
+        } else {
+            hunger = Math.min(hunger - 0, 300);
+        }
+    if (fatigue < 0) fatigue = 0;
+    if (hunger < 0) hunger = 0;
+    
+    //stop am thanh
+    const currentSound = document.getElementById("sounddoor");
+    if (currentSound) {
+        currentSound.pause();
+        currentSound.currentTime = 0;
+
+    } 
+    // if (currentRoom === "sân vườn"&& currentSound == "soundcar") {
+    //     currentSound.pause();
+    //     currentSound.currentTime = 0;
+    // }
+
+    //them am thanh
+    if (currentRoom === "phòng khách") {
+        document.getElementById("sounddoor").play();}
+    if (currentRoom === "siêu thị") {
+    document.getElementById("soundstore").play();}
+    if (currentRoom === "xe") {
+        document.getElementById("soundcar").play();}
+    if (currentRoom === "phòng ngủ") {
+        document.getElementById("sounddoor").play();}
+    if (currentRoom === "sân vườn") {
+        document.getElementById("soundgarden").play();}     
+    if (currentRoom === "nhà bếp") {
+        document.getElementById("soundfootstep").play();}   
+    if (currentRoom === "phòng ăn") {
+        document.getElementById("soundfootstep").play();}     
+    if (currentRoom === "kho") {
+        document.getElementById("whouse").play();}   
+    if (currentRoom === "Gian hàng") {
+        document.getElementById("wood").play();}           
+    updateAttributes(); // Update displayed attributes after deducting fatigue  soundfootstep
+    
+}
+
+//checkdongho
+function updateVisibility() {
+    const timeElement = document.getElementById('current-time').parentElement;
+    if (currentRoom === "phòng khách"|| currentRoom === "xe" || statusItems["đồng hồ đeo tay" ]) {
+        timeElement.style.display = "inline"; // Show the time
+    } else {
+        timeElement.style.display = "none"; // Hide the time
+    }
+}
+
+        //function updateNavigation()
+        function updateNavigation() {
+            document.getElementById("btn-phong-khach").style.display = "none";
+            document.getElementById("btn-phong-ngu").style.display = "none";
+            document.getElementById("btn-nha-bep").style.display = "none";
+            document.getElementById("btn-phong-an").style.display = "none";
+            document.getElementById("btn-kho").style.display = "none";
+            document.getElementById("btn-san-vuon").style.display = "none";
+            document.getElementById("btn-gian-hang").style.display = "none";
+            document.getElementById("btn-xe").style.display = "none";
+            document.getElementById("btn-sieu-thi").style.display = "none";
+            document.getElementById("btn-trang-trai").style.display = "none";
+            document.getElementById("btn-nha-trang-trai").style.display = "none";
+            document.getElementById("btn-chuong-trai").style.display = "none";
+            document.getElementById("btn-chuong-bo").style.display = "none";
+        
+
+            if (currentRoom === "phòng khách") {
+                document.getElementById("btn-phong-ngu").style.display = "inline";
+                document.getElementById("btn-nha-bep").style.display = "inline";
+                document.getElementById("btn-san-vuon").style.display = "inline";
+            } else if (currentRoom === "phòng ngủ") {
+                document.getElementById("btn-phong-khach").style.display = "inline";
+            } else if (currentRoom === "nhà bếp") {
+                document.getElementById("btn-phong-khach").style.display = "inline";
+                document.getElementById("btn-phong-an").style.display = "inline";
+            } else if (currentRoom === "phòng ăn") {
+                document.getElementById("btn-nha-bep").style.display = "inline";
+                document.getElementById("btn-kho").style.display = "inline";
+            } else if (currentRoom === "kho") {
+                document.getElementById("btn-phong-an").style.display = "inline";
+            } else if (currentRoom === "sân vườn") {
+                document.getElementById("btn-phong-khach").style.display = "inline";
+                document.getElementById("btn-gian-hang").style.display = "inline";
+                document.getElementById("btn-xe").style.display = "inline";
+            } else if (currentRoom === "Gian hàng") {
+                document.getElementById("btn-san-vuon").style.display = "inline";
+            } else if (currentRoom === "xe") {
+                document.getElementById("btn-san-vuon").style.display = "inline";
+                document.getElementById("btn-sieu-thi").style.display = "inline";
+                if (statusItems["trang trại"]){
+                    document.getElementById("btn-trang-trai").style.display = "inline";
+        }
+                
+            } else if (currentRoom === "siêu thị") {
+                document.getElementById("btn-xe").style.display = "inline";
+                if (statusItems["trang trại"]){
+                    document.getElementById("btn-trang-trai").style.display = "inline";
+        }
+            } else if (currentRoom === "trang trại") {
+                document.getElementById("btn-xe").style.display = "inline";
+                document.getElementById("btn-nha-trang-trai").style.display = "inline";
+                document.getElementById("btn-sieu-thi").style.display = "inline";
+                document.getElementById("btn-chuong-trai").style.display = "inline";
+            }
+            else if (currentRoom === "nhà trang trại") {
+                document.getElementById("btn-trang-trai").style.display = "inline";
+                document.getElementById("btn-phong-ngu").style.display = "inline";
+                document.getElementById("btn-nha-bep").style.display = "inline";
+                document.getElementById("btn-san-vuon").style.display = "inline";
+            }
+            else if (currentRoom === "chuồng trại") {
+                document.getElementById("btn-trang-trai").style.display = "inline";
+                document.getElementById("btn-chuong-bo").style.display = "inline";
+            }
+            else if (currentRoom === "chuồng bò") {
+                document.getElementById("btn-trang-trai").style.display = "inline";
+                document.getElementById("btn-chuong-trai").style.display = "inline";
+            }
+        }
+//đi siêu thị
+
+        //function updateActions
+        function updateActions() {
+            document.getElementById("btn-xem-tivi").style.display = (currentRoom === "phòng khách" && (!lastTVWatch || (currentDate - lastTVWatch >= 30 * 60 * 1000))) ? "inline" : "none";
+            document.getElementById("btn-ngu-1h").style.display = (currentRoom === "phòng ngủ" && (!lastSleep || (currentDate - lastSleep >= 30 * 60 * 1000))) ? "inline" : "none";
+            document.getElementById("btn-ngu-sang-mai").style.display = (currentRoom === "phòng ngủ") ? "inline" : "none";
+            //st
+            //document.getElementById("btn-xem-tivi").style.display = (currentRoom === "phòng khách" && (!lastTVWatch || (currentDate - lastTVWatch >= 60 * 60 * 1000))) ? "inline" : "none";
+        }
+
+
+        //function pickItem  
+        function pickItem(item) {
+            //const pickItemSound = document.getElementById("soundfootstep");
+            if (item === "chìa khóa kho" || item === "trang trại") {
+        if (!statusItems.includes(item)) {
+            statusItems.push(item);
+        }
+    }
+            if (!inventory[item]) {
+                inventory[item] = 1;
+            } else {
+                inventory[item]++;
+            }
+            //pickItemSound.play();
+            alert(`Bạn đã lấy ${item}`);
+            
+            updateItems();
+            
+        }
+        
+
+        //function checkInventory
+        function checkInventory() {
+            document.getElementById("checkinv").play();
+            let inventoryString = "Túi đồ của bạn: \n >";
+            for (const item in inventory) {
+                inventoryString += `${item} x${inventory[item]}, `;
+            }
+            inventoryString = inventoryString.slice(0, -2); // Remove last comma and space
+            alert(inventoryString);
+        }
+
+function checkStatus() {
+    let statusString = "Vật phẩm của bạn: \n";
+    for (const item in statusItems) {
+        if (statusItems.hasOwnProperty(item) && isNaN(item) && statusItems[item]) {
+            statusString += `>${item}\n`;
+        }
+    }
+    statusString = statusString.slice(0, -1); // Remove last comma and space
+    alert(statusString);
+}
+
+
+
+
+        //function updateTime
+        function updateTime(minutes) {
+            currentDate.setMinutes(currentDate.getMinutes() + minutes);
+            let hours = currentDate.getHours();
+            let mins = currentDate.getMinutes();
+            let ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12; // the hour '0' should be '12'
+            mins = mins < 10 ? '0' + mins : mins;
+            let strTime = hours + ':' + mins + ' ' + ampm;
+            document.getElementById("current-time").innerText = strTime;
+
+            let day = currentDate.getDate();
+            let month = currentDate.getMonth() + 1; // January is 0
+            let year = currentDate.getFullYear();
+            document.getElementById("current-date").innerText = day + '/' + month + '/' + year;
+
+            if (plantTime && (currentDate - plantTime >= 2 * 60 * 60 * 1000)) {
+                updateItems(); // Update the items to show the harvest button if 2 hours have passed
+            }
+
+            if (eggTime1 && (currentDate - eggTime1 >= 6 * 60 * 60 * 1000)) {
+                updateItems(); // Update the items to show the harvest button if 2 hours have passed
+            }
+
+            if (eggTime2 && (currentDate - eggTime2 >= 6 * 60 * 60 * 1000)) {
+                updateItems(); // Update the items to show the harvest button if 2 hours have passed
+            }
+
+            if (eggTime3 && (currentDate - eggTime3 >= 6 * 60 * 60 * 1000)) {
+                updateItems(); // Update the items to show the harvest button if 2 hours have passed
+            }
+
+            if (eggTime4 && (currentDate - eggTime4 >= 6 * 60 * 60 * 1000)) {
+                updateItems(); // Update the items to show the harvest button if 2 hours have passed
+            }
+
+            if (eggTime5 && (currentDate - eggTime5 >= 6 * 60 * 60 * 1000)) {
+                updateItems(); // Update the items to show the harvest button if 2 hours have passed
+            }
+        }
+
+
+        //function fastForward
+        function fastForward() {
+            if (Math.random() < 0.5) { // 50% drop hunger
+        hunger = Math.min(hunger - 3, 300);
+
+        } else {
+            hunger = Math.min(hunger - 0, 300);
+        }
+            
+            morale = Math.min(morale - 2, 100);
+            fatigue = Math.min(fatigue + 3, 100);
+            if (hunger < 0) hunger = 0;
+            if (morale < 0) morale = 0;
+            if (fatigue < 0) fatigue = 0;
+            updateAttributes();
+            updateTime(30);
+        }
+        function khoakho() { 
+            document.getElementById("soundpick").play();
+            statusItems["chìa khóa kho"] = 1;
+            //statusItems.push("chìa khóa kho");
+        alert("bạn đã lấy chìa khoá kho.");
+        //statusItems.push("chìa khóa kho");
+        
+        updateItems();
+        updateAttributes();
+        }
+        
+        //function plantTree
+        function plantTree() {
+    if (morale < 20 || fatigue > 90) {
+        alert("Tinh thần thấp hoặc quá mệt mỏi để trồng cây.");
+        return;} 
+        
+        
+    if (inventory["hạt giống"] > 0 && statusItems["Xẻng làm vườn"]){
+        document.getElementById("soundplant").play();
+        // Deduct morale and fatigue
+        morale -= 20;
+        fatigue = Math.min(fatigue + 20, 100);
+        hunger = Math.min(hunger - 5, 300);
+        if (hunger < 0) hunger = 0;
+        if (morale < 0) morale = 0;
+        if (fatigue >100) fatigue = 100;
+
+        inventory["hạt giống"]--;
+        if (inventory["hạt giống"] === 0) delete inventory["hạt giống"];
+        plantTime = new Date(currentDate);
+        alert("Bạn đã trồng cây, hãy quay lại sau 2 tiếng để thu hoạch.\n-20 Tinh thần \n +20 Mệt mỏi \n -5 Đói. ");
+        
+        updateItems();
+        updateAttributes(); // Update displayed attributes after harvesting
+    
+    } else {
+        alert("Bạn không có dụng cụ làm vườn hoặc hạt giống để trồng cây.");
+    }
+}
+//haha
+function feedchicken1() {
+    if (morale < 20 || fatigue > 90) {
+        alert("Tinh thần thấp hoặc quá mệt mỏi để trồng cây.");
+        return;} 
+        
+        
+    if (inventory["thức ăn gà"] > 0 ){
+        document.getElementById("soundplant").play();
+        // Deduct morale and fatigue
+        morale -= 20;
+        fatigue = Math.min(fatigue + 20, 100);
+        hunger = Math.min(hunger - 5, 300);
+        if (hunger < 0) hunger = 0;
+        if (morale < 0) morale = 0;
+        if (fatigue >100) fatigue = 100;
+
+        inventory["thức ăn gà"]--;
+        if (inventory["thức ăn gà"] === 0) delete inventory["thức ăn gà"];
+        eggTime1 = new Date(currentDate);
+        alert("Bạn đã cho gà ăn, hãy quay lại sau 6 tiếng để thu hoạch trứng.\n-20 Tinh thần \n +20 Mệt mỏi \n -5 Đói. ");
+        
+        updateItems();
+        updateAttributes(); // Update displayed attributes after harvesting
+    
+    } else {
+        alert("bạn đã hết thức ăn gà");
+    }
+}
+
+function feedchicken2() {
+    if (morale < 20 || fatigue > 90) {
+        alert("Tinh thần thấp hoặc quá mệt mỏi để trồng cây.");
+        return;} 
+        
+        
+    if (inventory["thức ăn gà"] > 0 ){
+        document.getElementById("soundplant").play();
+        // Deduct morale and fatigue
+        morale -= 20;
+        fatigue = Math.min(fatigue + 20, 100);
+        hunger = Math.min(hunger - 5, 300);
+        if (hunger < 0) hunger = 0;
+        if (morale < 0) morale = 0;
+        if (fatigue >100) fatigue = 100;
+
+        inventory["thức ăn gà"]--;
+        if (inventory["thức ăn gà"] === 0) delete inventory["thức ăn gà"];
+        eggTime2 = new Date(currentDate);
+        alert("Bạn đã cho gà ăn, hãy quay lại sau 6 tiếng để thu hoạch trứng.\n-20 Tinh thần \n +20 Mệt mỏi \n -5 Đói. ");
+        
+        updateItems();
+        updateAttributes(); // Update displayed attributes after harvesting
+    
+    } else {
+        alert("bạn đã hết thức ăn gà");
+    }
+}
+
+function feedchicken3() {
+    if (morale < 20 || fatigue > 90) {
+        alert("Tinh thần thấp hoặc quá mệt mỏi để trồng cây.");
+        return;} 
+        
+        
+    if (inventory["thức ăn gà"] > 0 ){
+        document.getElementById("soundplant").play();
+        // Deduct morale and fatigue
+        morale -= 20;
+        fatigue = Math.min(fatigue + 20, 100);
+        hunger = Math.min(hunger - 5, 300);
+        if (hunger < 0) hunger = 0;
+        if (morale < 0) morale = 0;
+        if (fatigue >100) fatigue = 100;
+
+        inventory["thức ăn gà"]--;
+        if (inventory["thức ăn gà"] === 0) delete inventory["thức ăn gà"];
+        eggTime3 = new Date(currentDate);
+        alert("Bạn đã cho gà ăn, hãy quay lại sau 6 tiếng để thu hoạch trứng.\n-20 Tinh thần \n +20 Mệt mỏi \n -5 Đói. ");
+        
+        updateItems();
+        updateAttributes(); // Update displayed attributes after harvesting
+    
+    } else {
+        alert("bạn đã hết thức ăn gà");
+    }
+}
+
+function feedchicken4() {
+    if (morale < 20 || fatigue > 90) {
+        alert("Tinh thần thấp hoặc quá mệt mỏi để trồng cây.");
+        return;} 
+        
+        
+    if (inventory["thức ăn gà"] > 0 ){
+        document.getElementById("soundplant").play();
+        // Deduct morale and fatigue
+        morale -= 20;
+        fatigue = Math.min(fatigue + 20, 100);
+        hunger = Math.min(hunger - 5, 300);
+        if (hunger < 0) hunger = 0;
+        if (morale < 0) morale = 0;
+        if (fatigue >100) fatigue = 100;
+
+        inventory["thức ăn gà"]--;
+        if (inventory["thức ăn gà"] === 0) delete inventory["thức ăn gà"];
+        eggTime4 = new Date(currentDate);
+        alert("Bạn đã cho gà ăn, hãy quay lại sau 6 tiếng để thu hoạch trứng.\n-20 Tinh thần \n +20 Mệt mỏi \n -5 Đói. ");
+        
+        updateItems();
+        updateAttributes(); // Update displayed attributes after harvesting
+    
+    } else {
+        alert("bạn đã hết thức ăn gà");
+    }
+}
+
+function feedchicken5() {
+    if (morale < 20 || fatigue > 90) {
+        alert("Tinh thần thấp hoặc quá mệt mỏi để trồng cây.");
+        return;} 
+        
+        
+    if (inventory["thức ăn gà"] > 0 ){
+        document.getElementById("soundplant").play();
+        // Deduct morale and fatigue
+        morale -= 20;
+        fatigue = Math.min(fatigue + 20, 100);
+        hunger = Math.min(hunger - 5, 300);
+        if (hunger < 0) hunger = 0;
+        if (morale < 0) morale = 0;
+        if (fatigue >100) fatigue = 100;
+
+        inventory["thức ăn gà"]--;
+        if (inventory["thức ăn gà"] === 0) delete inventory["thức ăn gà"];
+        eggTime5 = new Date(currentDate);
+        alert("Bạn đã cho gà ăn, hãy quay lại sau 6 tiếng để thu hoạch trứng.\n-20 Tinh thần \n +20 Mệt mỏi \n -5 Đói. ");
+        
+        updateItems();
+        updateAttributes(); // Update displayed attributes after harvesting
+    
+    } else {
+        alert("bạn đã hết thức ăn gà");
+    }
+}
+
+function feedCow1() {
+    if (morale < 20 || fatigue > 90) {
+        alert("Tinh thần thấp hoặc quá mệt mỏi để cho bò ăn.");
+        return;
+    }
+    
+    if (inventory["thức ăn bò"] > 0) {
+        document.getElementById("soundplant").play();
+        // Trừ tinh thần và tăng mệt mỏi
+        morale -= 20;
+        fatigue = Math.min(fatigue + 20, 100);
+        hunger = Math.min(hunger - 5, 300);
+        if (hunger < 0) hunger = 0;
+        if (morale < 0) morale = 0;
+        if (fatigue > 100) fatigue = 100;
+
+        inventory["thức ăn bò"]--;
+        if (inventory["thức ăn bò"] === 0) delete inventory["thức ăn bò"];
+        milkTime1 = new Date(currentDate);
+        alert("Bạn đã cho bò ăn, hãy quay lại sau 8 tiếng để thu hoạch sữa.\n-20 Tinh thần \n +20 Mệt mỏi \n -5 Đói.");
+
+        updateItems();
+        updateAttributes();
+    } else {
+        alert("Bạn đã hết thức ăn bò.");
+    }
+}
+
+function feedCow2() {
+    if (morale < 20 || fatigue > 90) {
+        alert("Tinh thần thấp hoặc quá mệt mỏi để cho bò ăn.");
+        return;
+    }
+
+    if (inventory["thức ăn bò"] > 0) {
+        document.getElementById("soundplant").play();
+        morale -= 20;
+        fatigue = Math.min(fatigue + 20, 100);
+        hunger = Math.min(hunger - 5, 300);
+        if (hunger < 0) hunger = 0;
+        if (morale < 0) morale = 0;
+        if (fatigue > 100) fatigue = 100;
+
+        inventory["thức ăn bò"]--;
+        if (inventory["thức ăn bò"] === 0) delete inventory["thức ăn bò"];
+        milkTime2 = new Date(currentDate);
+        alert("Bạn đã cho bò ăn, hãy quay lại sau 8 tiếng để thu hoạch sữa.\n-20 Tinh thần \n +20 Mệt mỏi \n -5 Đói.");
+
+        updateItems();
+        updateAttributes();
+    } else {
+        alert("Bạn đã hết thức ăn bò.");
+    }
+}
+
+function feedCow3() {
+    if (morale < 20 || fatigue > 90) {
+        alert("Tinh thần thấp hoặc quá mệt mỏi để cho bò ăn.");
+        return;
+    }
+
+    if (inventory["thức ăn bò"] > 0) {
+        document.getElementById("soundplant").play();
+        morale -= 20;
+        fatigue = Math.min(fatigue + 20, 100);
+        hunger = Math.min(hunger - 5, 300);
+        if (hunger < 0) hunger = 0;
+        if (morale < 0) morale = 0;
+        if (fatigue > 100) fatigue = 100;
+
+        inventory["thức ăn bò"]--;
+        if (inventory["thức ăn bò"] === 0) delete inventory["thức ăn bò"];
+        milkTime3 = new Date(currentDate);
+        alert("Bạn đã cho bò ăn, hãy quay lại sau 8 tiếng để thu hoạch sữa.\n-20 Tinh thần \n +20 Mệt mỏi \n -5 Đói.");
+
+        updateItems();
+        updateAttributes();
+    } else {
+        alert("Bạn đã hết thức ăn bò.");
+    }
+}
+
+function feedCow4() {
+    if (morale < 20 || fatigue > 90) {
+        alert("Tinh thần thấp hoặc quá mệt mỏi để cho bò ăn.");
+        return;
+    }
+
+    if (inventory["thức ăn bò"] > 0) {
+        document.getElementById("soundplant").play();
+        morale -= 20;
+        fatigue = Math.min(fatigue + 20, 100);
+        hunger = Math.min(hunger - 5, 300);
+        if (hunger < 0) hunger = 0;
+        if (morale < 0) morale = 0;
+        if (fatigue > 100) fatigue = 100;
+
+        inventory["thức ăn bò"]--;
+        if (inventory["thức ăn bò"] === 0) delete inventory["thức ăn bò"];
+        milkTime4 = new Date(currentDate);
+        alert("Bạn đã cho bò ăn, hãy quay lại sau 8 tiếng để thu hoạch sữa.\n-20 Tinh thần \n +20 Mệt mỏi \n -5 Đói.");
+
+        updateItems();
+        updateAttributes();
+    } else {
+        alert("Bạn đã hết thức ăn bò.");
+    }
+}
+
+function feedCow5() {
+    if (morale < 20 || fatigue > 90) {
+        alert("Tinh thần thấp hoặc quá mệt mỏi để cho bò ăn.");
+        return;
+    }
+
+    if (inventory["thức ăn bò"] > 0) {
+        document.getElementById("soundplant").play();
+        morale -= 20;
+        fatigue = Math.min(fatigue + 20, 100);
+        hunger = Math.min(hunger - 5, 300);
+        if (hunger < 0) hunger = 0;
+        if (morale < 0) morale = 0;
+        if (fatigue > 100) fatigue = 100;
+
+        inventory["thức ăn bò"]--;
+        if (inventory["thức ăn bò"] === 0) delete inventory["thức ăn bò"];
+        milkTime5 = new Date(currentDate);
+        alert("Bạn đã cho bò ăn, hãy quay lại sau 8 tiếng để thu hoạch sữa.\n-20 Tinh thần \n +20 Mệt mỏi \n -5 Đói.");
+
+        updateItems();
+        updateAttributes();
+    } else {
+        alert("Bạn đã hết thức ăn bò.");
+    }
+}
+
+
+
+        function harvestTree() {
+            if (morale < 20 || fatigue > 90) {
+        alert("Tinh thần thấp hoặc quá mệt mỏi để thu hoạch.");
+        return;}
+    // Deduct morale and fatigue
+    document.getElementById("soundthoach").play();
+    hunger = Math.min(hunger - 2, 300);
+        if (hunger < 0) hunger = 0;
+    morale -= 5;
+    fatigue = Math.min(fatigue + 10, 100);
+    if (morale < 0) morale = 0;
+    if (fatigue < 0) fatigue = 0;
+
+    if (!inventory["trái cây"]) {
+        inventory["trái cây"] = 1;
+    } else {
+        inventory["trái cây"]++;
+    }
+    plantTime = null;
+    alert("Bạn đã thu hoạch và nhận được 1 trái cây. \n-5 Tinh thần \n +10 Mệt mỏi \n -2 Đói.");
+    updateItems();
+    updateAttributes(); // Update displayed attributes after harvesting
+    checkInventory();
+    updateActions();
+    updateTime(5);
+}
+
+function harvestegg1 () {
+            if (morale < 20 || fatigue > 90) {
+        alert("Tinh thần thấp hoặc quá mệt mỏi để thu hoạch.");
+        return;}
+    // Deduct morale and fatigue
+    document.getElementById("soundthoach").play();
+    hunger = Math.min(hunger - 2, 300);
+        if (hunger < 0) hunger = 0;
+    morale -= 5;
+    fatigue = Math.min(fatigue + 10, 100);
+    if (morale < 0) morale = 0;
+    if (fatigue < 0) fatigue = 0;
+
+    if (!inventory["trứng gà"]) {
+        inventory["trứng gà"] = 1;
+    } else {
+        inventory["trứng gà"]++;
+    }
+    eggTime1 = null;
+    alert("Bạn đã thu hoạch và nhận được 1 trứng gà. \n-5 Tinh thần \n +10 Mệt mỏi \n -2 Đói.");
+    updateItems();
+    updateAttributes(); // Update displayed attributes after harvesting
+    checkInventory();
+    updateActions();
+    updateTime(5);
+}
+
+function harvestegg2() {
+            if (morale < 20 || fatigue > 90) {
+        alert("Tinh thần thấp hoặc quá mệt mỏi để thu hoạch.");
+        return;}
+    // Deduct morale and fatigue
+    document.getElementById("soundthoach").play();
+    hunger = Math.min(hunger - 2, 300);
+        if (hunger < 0) hunger = 0;
+    morale -= 5;
+    fatigue = Math.min(fatigue + 10, 100);
+    if (morale < 0) morale = 0;
+    if (fatigue < 0) fatigue = 0;
+
+    if (!inventory["trứng gà"]) {
+        inventory["trứng gà"] = 1;
+    } else {
+        inventory["trứng gà"]++;
+    }
+    eggTime2 = null;
+    alert("Bạn đã thu hoạch và nhận được 1 trứng gà. \n-5 Tinh thần \n +10 Mệt mỏi \n -2 Đói.");
+    updateItems();
+    updateAttributes(); // Update displayed attributes after harvesting
+    checkInventory();
+    updateActions();
+    updateTime(5);
+}
+
+function harvestegg3() {
+            if (morale < 20 || fatigue > 90) {
+        alert("Tinh thần thấp hoặc quá mệt mỏi để thu hoạch.");
+        return;}
+    // Deduct morale and fatigue
+    document.getElementById("soundthoach").play();
+    hunger = Math.min(hunger - 2, 300);
+        if (hunger < 0) hunger = 0;
+    morale -= 5;
+    fatigue = Math.min(fatigue + 10, 100);
+    if (morale < 0) morale = 0;
+    if (fatigue < 0) fatigue = 0;
+
+    if (!inventory["trứng gà"]) {
+        inventory["trứng gà"] = 1;
+    } else {
+        inventory["trứng gà"]++;
+    }
+    eggTime3 = null;
+    alert("Bạn đã thu hoạch và nhận được 1 trứng gà. \n-5 Tinh thần \n +10 Mệt mỏi \n -2 Đói.");
+    updateItems();
+    updateAttributes(); // Update displayed attributes after harvesting
+    checkInventory();
+    updateActions();
+    updateTime(5);
+}
+
+function harvestegg4() {
+            if (morale < 20 || fatigue > 90) {
+        alert("Tinh thần thấp hoặc quá mệt mỏi để thu hoạch.");
+        return;}
+    // Deduct morale and fatigue
+    document.getElementById("soundthoach").play();
+    hunger = Math.min(hunger - 2, 300);
+        if (hunger < 0) hunger = 0;
+    morale -= 5;
+    fatigue = Math.min(fatigue + 10, 100);
+    if (morale < 0) morale = 0;
+    if (fatigue < 0) fatigue = 0;
+
+    if (!inventory["trứng gà"]) {
+        inventory["trứng gà"] = 1;
+    } else {
+        inventory["trứng gà"]++;
+    }
+    eggTime4 = null;
+    alert("Bạn đã thu hoạch và nhận được 1 trứng gà. \n-5 Tinh thần \n +10 Mệt mỏi \n -2 Đói.");
+    updateItems();
+    updateAttributes(); // Update displayed attributes after harvesting
+    checkInventory();
+    updateActions();
+    updateTime(5);
+}
+
+function harvestegg5() {
+            if (morale < 20 || fatigue > 90) {
+        alert("Tinh thần thấp hoặc quá mệt mỏi để thu hoạch.");
+        return;}
+    // Deduct morale and fatigue
+    document.getElementById("soundthoach").play();
+    hunger = Math.min(hunger - 2, 300);
+        if (hunger < 0) hunger = 0;
+    morale -= 5;
+    fatigue = Math.min(fatigue + 10, 100);
+    if (morale < 0) morale = 0;
+    if (fatigue < 0) fatigue = 0;
+
+    if (!inventory["trứng gà"]) {
+        inventory["trứng gà"] = 1;
+    } else {
+        inventory["trứng gà"]++;
+    }
+    eggTime5 = null;
+    alert("Bạn đã thu hoạch và nhận được 1 trứng gà. \n-5 Tinh thần \n +10 Mệt mỏi \n -2 Đói.");
+    updateItems();
+    updateAttributes(); // Update displayed attributes after harvesting
+    checkInventory();
+    updateActions();
+    updateTime(5);
+}
+
+function milking1() { 
+    if (morale < 20 || fatigue > 90) {
+        alert("Tinh thần thấp hoặc quá mệt mỏi để thu hoạch sữa.");
+        return;
+    }
+    // Trừ tinh thần và tăng mệt mỏi
+    document.getElementById("soundthoach").play();
+    hunger = Math.min(hunger - 2, 300);
+    if (hunger < 0) hunger = 0;
+    morale -= 5;
+    fatigue = Math.min(fatigue + 10, 100);
+    if (morale < 0) morale = 0;
+    if (fatigue > 100) fatigue = 100;
+
+    if (!inventory["sữa"]) { 
+        inventory["sữa"] = 1;
+    } else {
+        inventory["sữa"]++;
+    }
+    milkTime1 = null; 
+    alert("Bạn đã thu hoạch và nhận được 1 sữa. \n-5 Tinh thần \n +10 Mệt mỏi \n -2 Đói."); 
+    updateItems();
+    updateAttributes();
+    checkInventory();
+    updateActions();
+    updateTime(5);
+}
+
+function milking2() { 
+    if (morale < 20 || fatigue > 90) {
+        alert("Tinh thần thấp hoặc quá mệt mỏi để thu hoạch sữa.");
+        return;
+    }
+    document.getElementById("soundthoach").play();
+    hunger = Math.min(hunger - 2, 300);
+    if (hunger < 0) hunger = 0;
+    morale -= 5;
+    fatigue = Math.min(fatigue + 10, 100);
+    if (morale < 0) morale = 0;
+    if (fatigue > 100) fatigue = 100;
+
+    if (!inventory["sữa"]) { 
+        inventory["sữa"] = 1;
+    } else {
+        inventory["sữa"] ++;
+    }
+    milkTime2 = null; 
+    alert("Bạn đã thu hoạch và nhận được 2 sữa. \n-5 Tinh thần \n +10 Mệt mỏi \n -2 Đói.");
+    updateItems();
+    updateAttributes();
+    checkInventory();
+    updateActions();
+    updateTime(5);
+}
+
+function milking3() { 
+    if (morale < 20 || fatigue > 90) {
+        alert("Tinh thần thấp hoặc quá mệt mỏi để thu hoạch sữa.");
+        return;
+    }
+    document.getElementById("soundthoach").play();
+    hunger = Math.min(hunger - 2, 300);
+    if (hunger < 0) hunger = 0;
+    morale -= 5;
+    fatigue = Math.min(fatigue + 10, 100);
+    if (morale < 0) morale = 0;
+    if (fatigue > 100) fatigue = 100;
+
+    if (!inventory["sữa"]) { 
+        inventory["sữa"] = 1;
+    } else {
+        inventory["sữa"] ++;
+    }
+    milkTime3 = null; 
+    alert("Bạn đã thu hoạch và nhận được 3 sữa. \n-5 Tinh thần \n +10 Mệt mỏi \n -2 Đói.");
+    updateItems();
+    updateAttributes();
+    checkInventory();
+    updateActions();
+    updateTime(5);
+}
+
+function milking4() { 
+    if (morale < 20 || fatigue > 90) {
+        alert("Tinh thần thấp hoặc quá mệt mỏi để thu hoạch sữa.");
+        return;
+    }
+    document.getElementById("soundthoach").play();
+    hunger = Math.min(hunger - 2, 300);
+    if (hunger < 0) hunger = 0;
+    morale -= 5;
+    fatigue = Math.min(fatigue + 10, 100);
+    if (morale < 0) morale = 0;
+    if (fatigue > 100) fatigue = 100;
+
+    if (!inventory["sữa"]) { 
+        inventory["sữa"] = 1;
+    } else {
+        inventory["sữa"] ++;
+    }
+    milkTime4 = null; 
+    alert("Bạn đã thu hoạch và nhận được 4 sữa. \n-5 Tinh thần \n +10 Mệt mỏi \n -2 Đói.");
+    updateItems();
+    updateAttributes();
+    checkInventory();
+    updateActions();
+    updateTime(5);
+}
+
+function milking5() { 
+    if (morale < 20 || fatigue > 90) {
+        alert("Tinh thần thấp hoặc quá mệt mỏi để thu hoạch sữa.");
+        return;
+    }
+    document.getElementById("soundthoach").play();
+    hunger = Math.min(hunger - 2, 300);
+    if (hunger < 0) hunger = 0;
+    morale -= 5;
+    fatigue = Math.min(fatigue + 10, 100);
+    if (morale < 0) morale = 0;
+    if (fatigue > 100) fatigue = 100;
+
+    if (!inventory["sữa"]) { 
+        inventory["sữa"] = 1;
+    } else {
+        inventory["sữa"] ++;
+    }
+    milkTime5 = null; 
+    alert("Bạn đã thu hoạch và nhận được 5 sữa. \n-5 Tinh thần \n +10 Mệt mỏi \n -2 Đói.");
+    updateItems();
+    updateAttributes();
+    checkInventory();
+    updateActions();
+    updateTime(5);
+}
+
+
+function cutFruit() {
+            if (fatigue > 90) {
+                alert("bạn quá mệt mỏi để làm bất cứ điều gì ngoài việc đi ngủ.");
+                return;
+            }
+            if (inventory["trái cây"] > 0 && statusItems["dao bếp"]) {
+                document.getElementById("chopping").play()
+                inventory["trái cây"]--;
+                if (inventory["trái cây"] === 0) delete inventory["trái cây"];
+                inventory["trái cây cắt sẵn"] = (inventory["trái cây cắt sẵn"] || 0) + 3;
+                updateItems();
+                alert("Bạn đã cắt trái cây và nhận được 3 miếng trái cây cắt sẵn<$$>.\ncó thể mang đi bán tại gian hàng \nkhi đủ x10 miếng sẽ làm dược dĩa trái cây<$$$>\n-1 Tinh thần \n +1 Mệt mỏi \n -1 Đói.");
+                hunger = Math.min(hunger - 1, 300);
+                if (hunger < 0) hunger = 0;
+                morale = Math.min(morale - 1, 100);
+                fatigue = Math.min(fatigue + 1, 100);
+                if (morale < 0) morale = 0;
+                if (fatigue < 0) fatigue = 0;
+                updateAttributes();
+                updateTime(30);
+                checkInventory();
+            }
+        }
+
+        //function chienca chienca
+        function chienCa() {
+            if (fatigue > 90) {
+                alert("bạn quá mệt mỏi để làm bất cứ điều gì ngoài việc đi ngủ.");
+                return;
+            }
+            if (inventory["cá phi lê"] > 0 && statusItems["chảo chiên"] > 0) {
+                inventory["cá phi lê"]--;
+                if (inventory["cá phi lê"] === 0) delete inventory["cá phi lê"];
+                inventory["cá chiên"] = (inventory["cá chiên"] || 0) + 1;
+                hunger = Math.min(hunger - 1, 300);
+                if (hunger < 0) hunger = 0;
+                morale = Math.min(morale - 1, 100);
+                fatigue = Math.min(fatigue + 1, 100);
+                if (morale < 0) morale = 0;
+                if (fatigue < 0) fatigue = 0;
+                updateAttributes();
+                updateItems();
+                alert("Bạn đã chiên 1 con cá và nhận được cá chiên.\ncó thể mang đi bán tại gian hàng.\n-1 Tinh thần \n +1 Mệt mỏi \n -1 Đói.");
+                checkInventory();
+            }
+        }
+
+        function cutpile() {
+            if (fatigue > 90) {
+                alert("bạn quá mệt mỏi để làm bất cứ điều gì ngoài việc đi ngủ.");
+                return;
+            }
+            hunger = Math.min(hunger - 2, 300);
+                if (hunger < 0) hunger = 0;
+        morale += 2;
+        fatigue = Math.min(fatigue + 5, 100);
+        if (morale > 100) morale = 100;
+        if (fatigue < 0) fatigue = 0;
+            if (inventory["cá"] > 0 && statusItems["dao bếp"]) {
+                inventory["cá"]--;
+                if (inventory["cá"] === 0) delete inventory["cá"];
+                inventory["cá phi lê"] = (inventory["cá phi lê"] || 0) + 1
+                //const filteredInventory = Object.fromEntries(Object.entries(inventory).filter(([key, value]) => value > 0));
+                updateItems();
+                alert("Bạn đã nhận được cá phi lê.\n+2 Tinh thần \n +5 Mệt mỏi \n -2 Đói.");
+                checkInventory();
+                updateAttributes();
+                
+            }
+        }        
+        function makeFruitPlate() {
+            if (fatigue > 90) {
+                alert("bạn quá mệt mỏi để làm bất cứ điều gì ngoài việc đi ngủ.");
+                return;
+            }
+            if (inventory["trái cây cắt sẵn"] >= 10) {
+                inventory["trái cây cắt sẵn"] -= 10;
+                if (inventory["trái cây cắt sẵn"] === 0) delete inventory["trái cây cắt sẵn"];
+                inventory["dĩa trái cây"] = (inventory["dĩa trái cây"] || 0) + 1;
+                alert("bạn đã làm dĩa trái cây từ 10 trái cây cắt sẵn<$$$>.\ncó thể mang đi bán tại gian hàng\n+2 Tinh thần \n +1 Mệt mỏi \n -1 Đói.");
+                hunger = Math.min(hunger - 1, 300);
+                if (hunger < 0) hunger = 0;
+                morale = Math.min(morale + 2, 100);
+                fatigue = Math.min(fatigue + 1, 100);
+                if (morale < 0) morale = 0;
+                if (fatigue < 0) fatigue = 0;
+                updateAttributes();
+                updateItems();
+                checkInventory();
+            }
+        }
+
+        function makecoffe() {
+            if (fatigue > 90) {
+                alert("bạn quá mệt mỏi để làm bất cứ điều gì ngoài việc đi ngủ.");
+                return;
+            }
+            if (inventory["gói Cà phê"] > 0 && statusItems["Máy pha Cà phê"]) {
+                inventory["gói Cà phê"] -= 1;
+                if (inventory["gói Cà phê"] === 0) delete inventory["gói Cà phê"];
+                inventory["Cà phê"] = (inventory["Cà phê"] || 0) + 1;
+                alert("bạn đã làm 1 ly Cà phê từ máy pha Cà phê.\nkhi dùng giúp giảm mệt mỏi\n+2 Tinh thần \n +1 Mệt mỏi \n -1 Đói.");
+                hunger = Math.min(hunger - 1, 300);
+                if (hunger < 0) hunger = 0;
+                morale = Math.min(morale + 2, 100);
+                fatigue = Math.min(fatigue + 1, 100);
+                if (morale < 0) morale = 0;
+                if (fatigue < 0) fatigue = 0;
+                updateAttributes();
+                updateItems();
+                checkInventory();
+            }
+        }//makecoffe
+
+        //nha bep item
+        function laydao() {
+            document.getElementById("soundpick").play();
+            statusItems["dao bếp"] = 1;
+            alert("bạn đã lấy dao bếp. \ndùng để cắt trái cây hoặc phi lê cá tại nhà bếp.");
+            updateItems();
+            }
+
+            function chaochien() {
+                document.getElementById("soundpick").play();
+            statusItems["chảo chiên"] = 1;
+            alert("bạn đã lấy chảo chiên.\n dùng để chiên cá từ cá phi lê");
+            updateItems();
+            }
+
+            function khoaxe() {
+                document.getElementById("soundpick").play();
+            statusItems["chìa khoá xe"] = 1;
+            alert("bạn đã lấy chìa khoá xe.\n đã có thể vào xe để di chuyển");
+            updateItems();
+            }
+
+            function xengvuon() {
+                document.getElementById("soundpick").play();
+            statusItems["Xẻng làm vườn"] = 1;
+            alert("bạn đã lấy Xẻng làm vườn\n có thể trồng cây khi có hạt giống");
+            updateItems();
+            }
+
+        function bancachien() {
+            if (fatigue > 90) {
+                alert("bạn quá mệt mỏi để làm bất cứ điều gì ngoài việc đi ngủ.");
+                return;
+            }
+            if (inventory["cá chiên"] > 0) {
+                document.getElementById("cash").play();
+                inventory["cá chiên"]--;
+                if (inventory["cá chiên"] === 0) delete inventory["cá chiên"];
+                inventory["Đồng"] = (inventory["Đồng"] || 0) + 100;
+                
+                alert("Bạn đã bán cá chiên và nhận được 100 đồng.");
+                updateItems();
+                checkInventory(); // Update inventory display
+                updateAttributes();
+            }
+        }
+        
+        // function banhatgiong() {
+        //     if (inventory["hạt giống"] > 0) {
+        //         inventory["hạt giống"]--;
+        //         if (inventory["hạt giống"] === 0) delete inventory["hạt giống"];
+        //         inventory["Đồng"] = (inventory["Đồng"] || 0) + 5;
+                
+        //         alert("Bạn đã hạt giống và nhận được 5 đồng.");
+        //         updateItems();
+        //         checkInventory(); // Update inventory display
+        //     }
+        // }
+        
+        
+        
+
+        function sellFruitPlate() {
+            document.getElementById("cash").play();
+            if (inventory["dĩa trái cây"] > 0) {
+                inventory["dĩa trái cây"]--;
+                if (inventory["dĩa trái cây"] === 0) delete inventory["dĩa trái cây"];
+                inventory["Đồng"] = (inventory["Đồng"] || 0) + 300;
+                
+                alert("Bạn đã bán dĩa trái cây và nhận được 300 đồng.");
+                updateItems();
+                checkInventory(); // Update inventory display
+                updateAttributes();
+            }
+        }
+       //898
+        function bantraicay() {
+            document.getElementById("coin").play();
+            if (inventory["trái cây cắt sẵn"] > 0) {
+                inventory["trái cây cắt sẵn"]--;
+                if (inventory["trái cây cắt sẵn"] === 0) delete inventory["trái cây cắt sẵn"];
+                inventory["Đồng"] = (inventory["Đồng"] || 0) + 10;
+                
+                alert("Bạn đã bán trái cây cắt sẵn và nhận được 10 đồng.");
+                updateItems();
+                checkInventory(); // Update inventory display
+                updateAttributes();
+            }
+        }
+
+
+            //muacancau
+            function muacancau() {
+                if (statusItems["cần câu"]) {
+                alert("đã có cần");
+                return;}
+
+                if (inventory["Đồng"] < 99 || !inventory["Đồng"]) {
+                alert("không đủ tiền, cần 100 đồng để mua cần câu.");
+                return;
+                } else {
+                    document.getElementById("cash2").play();
+                inventory["Đồng"]-= 100;
+                if (inventory["Đồng"] === 0) delete inventory["Đồng"];
+                statusItems["cần câu"] = 1;
+                alert("Bạn đã mua cần câu với giá 100 đồng.");
+                updateItems();
+                checkStatus(); 
+                updateAttributes();
+                
+            } 
+        
+        }
+
+        function coffe() {
+                if (inventory["Đồng"] < 49 || !inventory["Đồng"]) {
+                alert("không đủ tiền, cần 50 đồng để mua gói Cà phê.");
+                return;
+                } else {
+                    document.getElementById("cash").play();
+                inventory["Đồng"]-= 50;
+                if (inventory["Đồng"] === 0) delete inventory["Đồng"];
+                if (!inventory["gói Cà phê"]) {
+                inventory["gói Cà phê"] = 1;
+                } else {
+                inventory["gói Cà phê"]++;
+                }
+                alert("Bạn đã mua gói Cà phê với giá 50 đồng.");
+                updateItems();
+                checkInventory(); 
+                updateAttributes();
+                
+            } 
+        
+        }
+
+        function cake() {
+                if (inventory["Đồng"] < 49 || !inventory["Đồng"]) {
+                alert("không đủ tiền, cần 50 đồng để mua bịch bánh.");
+                return;
+                } else {
+                    document.getElementById("cash").play();
+                inventory["Đồng"]-= 50;
+                if (inventory["Đồng"] === 0) delete inventory["Đồng"];
+                if (!inventory["bánh"]) {
+                inventory["bánh"] = 1;
+                } else {
+                inventory["bánh"]++;
+                }
+                alert("Bạn đã mua bịch bánh với giá 50 đồng.\n dùng để hồi 1 ít Đói và tinh thần.");
+                updateItems();
+                checkInventory(); 
+                updateAttributes();
+                
+            } 
+        
+        }
+
+        function dongho() {
+                if (statusItems["đồng hồ đeo tay"]) {
+                alert("đã có đồng hồ");
+                return;}
+
+                if (inventory["Đồng"] < 499 || !inventory["Đồng"]) {
+                alert("không đủ tiền, cần 500 đồng để mua đồng hồ đeo tay.\n khi trang bị sẽ có thể xem thời gian ở bất cứ đâu.");
+                return;
+                } else {
+                    
+                inventory["Đồng"]-= 500;
+                document.getElementById("cash2").play();
+                if (inventory["Đồng"] === 0) delete inventory["Đồng"];
+                statusItems["đồng hồ đeo tay"] = 1;
+                alert("Bạn đã mua đồng hồ đeo tay với giá 500 đồng.");
+                updateItems();
+                checkStatus();
+                updateAttributes();
+                
+                
+            } 
+            //muahatgiong 
+        }
+
+        function foodbag() {
+                if (statusItems["túi đồ ăn"]) {
+                alert("bạn đã có túi đồ ăn");
+                return;}
+
+                if (inventory["Đồng"] < 199 || !inventory["Đồng"]) {
+                alert("không đủ tiền, cần 200 đồng để mua túi đồ ăn.\n khi trang bị sẽ có thể ăn thức ăn ở bất cứ đâu.");
+                return;
+                } else {
+                    document.getElementById("cash2").play();
+                inventory["Đồng"]-= 200;
+                if (inventory["Đồng"] === 0) delete inventory["Đồng"];
+                statusItems["túi đồ ăn"] = 1;
+                alert("Bạn đã mua túi đồ ăn với giá 200 đồng.");
+                updateItems();
+                checkStatus();
+                updateAttributes();
+                
+                
+            } 
+            //muahatgiong coffemachine
+        }
+
+        function coffemachine() {
+                if (statusItems["Máy pha Cà phê"]) {
+                alert("bạn đã có Máy pha Cà phê");
+                return;}
+
+                if (inventory["Đồng"] < 499 || !inventory["Đồng"]) {
+                alert("không đủ tiền, cần 500 đồng để mua Máy pha Cà phê.\n có thể làm Cà phê tại nhà bếp");
+                return;
+                } else {
+                    document.getElementById("cash2").play();
+                inventory["Đồng"]-= 500;
+                if (inventory["Đồng"] === 0) delete inventory["Đồng"];
+                statusItems["Máy pha Cà phê"] = 1;
+                alert("Bạn đã mua Máy pha Cà phê với giá 500 đồng.");
+                updateItems();
+                checkStatus();
+                updateAttributes();
+                
+            } 
+            //muahatgiong coffemachine
+        }
+
+        //thuc an ga WIP
+        function foodmuaga() {
+                if (inventory["Đồng"] < 99 || !inventory["Đồng"]) {
+                alert("không đủ tiền, cần 100 đồng để mua x10 thức ăn gà.");
+                return;
+                } else {
+                inventory["Đồng"]-= 100;
+                if (inventory["Đồng"] === 0) delete inventory["Đồng"];
+                if (!inventory["thức ăn gà"]) {
+                inventory["thức ăn gà"] = 10;
+                } else {
+                inventory["thức ăn gà"]+= 10;
+                }
+                alert("Chúc mừng bạn đã mua được x10 thức ăn gà.");
+                updateItems();
+                updateAttributes();
+                 
+            } }
+
+            function foodmuabo() {
+                if (inventory["Đồng"] < 99 || !inventory["Đồng"]) {
+                alert("không đủ tiền, cần 100 đồng để mua x10 thức ăn bò.");
+                return;
+                } else {
+                inventory["Đồng"]-= 100;
+                if (inventory["Đồng"] === 0) delete inventory["Đồng"];
+                if (!inventory["thức ăn bò"]) {
+                inventory["thức ăn bò"] = 10;
+                } else {
+                inventory["thức ăn bò"]+= 10;
+                }
+                alert("Chúc mừng bạn đã mua được x10 thức ăn bò.");
+                updateItems();
+                updateAttributes();
+                 
+            } }
+
+        //muaga 
+        function muaga() {
+            if (statusItems["gà"]) {
+                alert("bạn đã có gà trong chuồn");
+                return;}
+                if (inventory["Đồng"] < 1499 || !inventory["Đồng"]) {
+                alert("không đủ tiền, cần 1500 đồng để mua gà.");
+                return;
+                } else {
+                inventory["Đồng"]-= 1500;
+                if (inventory["Đồng"] === 0) delete inventory["Đồng"];
+                if (!inventory["gà"]) {
+                inventory["gà"] = 1;
+                //statusItems.push("gà");
+                } else {
+                inventory["gà"]++;
+                //statusItems.push("gà");
+                
+                }
+                alert("Chúc mừng bạn đã mua được gà.");
+                //statusItems.push("gà");
+                updateItems();
+                updateAttributes();
+                 
+            } }
+
+            function muabo() {
+            if (statusItems["bò"]) {
+                alert("bạn đã có gà trong chuồn");
+                return;}
+                if (inventory["Đồng"] < 4999 || !inventory["Đồng"]) {
+                alert("không đủ tiền, cần 5000 đồng để mua 1 con bò.");
+                return;
+                } else {
+                inventory["Đồng"]-= 5000;
+                if (inventory["Đồng"] === 0) delete inventory["Đồng"];
+                if (!inventory["bò"]) {
+                inventory["bò"] = 1;
+                //statusItems.push("gà");
+                } else {
+                inventory["bò"] ++;
+                //statusItems.push("gà");
+                
+                }
+                alert("Chúc mừng bạn đã mua được 1 con bò.");
+                //statusItems.push("gà");
+                updateItems();
+                updateAttributes();
+                 
+            } }
+
+        function muahatgiong() {
+                if (inventory["Đồng"] < 4 || !inventory["Đồng"]) {
+                alert("không đủ tiền, cần 5 đồng để mua hạt giống.");
+                return;
+                } else {
+                    document.getElementById("cash").play();
+                inventory["Đồng"]-= 5;
+                if (inventory["Đồng"] === 0) delete inventory["Đồng"];
+                if (!inventory["hạt giống"]) {
+                inventory["hạt giống"] = 1;
+                } else {
+                inventory["hạt giống"]++;
+                }
+                alert("Bạn đã mua hạt giống với giá 5 đồng.");
+                updateItems();
+                updateAttributes();
+                checkInventory(); // Update inventory display (inventory["Đồng"] < 1 || !inventory["Đồng"]) {
+                
+            } }
+            
+            function muahatgiong3() {
+                if (inventory["Đồng"] < 14 || !inventory["Đồng"]) {
+                alert("không đủ tiền, cần 15 đồng để mua x3 hạt giống.");
+                return;
+                } else {
+                    document.getElementById("cash").play();
+                inventory["Đồng"]-= 15;
+                if (inventory["Đồng"] === 0) delete inventory["Đồng"];
+                if (!inventory["hạt giống"]) {
+                inventory["hạt giống"] = 3;
+                } else {
+                inventory["hạt giống"]+= 3;
+                }
+                alert("Bạn đã mua hạt giống với giá 15 đồng.");
+                updateItems();
+                checkInventory(); 
+                updateAttributes();
+                
+            } }
+
+            function muahatgiong5() {
+                if (inventory["Đồng"] < 24 || !inventory["Đồng"]) {
+                alert("không đủ tiền, cần 25 đồng để mua x5 hạt giống.");
+                return;
+                } else {
+                    document.getElementById("cash").play();
+                inventory["Đồng"]-= 25;
+                if (inventory["Đồng"] === 0) delete inventory["Đồng"];
+                if (!inventory["hạt giống"]) {
+                inventory["hạt giống"] = 5;
+                } else {
+                inventory["hạt giống"]+= 5;
+                }
+                alert("Bạn đã mua x5 hạt giống với giá 25 đồng.");
+                updateItems();
+                checkInventory(); 
+                updateAttributes();
+            } }
+
+            //nangcap
+            function muatrangtrai() {
+                if (statusItems["trang trại"]) {
+                alert("bạn đã có trang trại");
+                return;}
+                if (inventory["Đồng"] < 999 || !inventory["Đồng"]) {
+                alert("không đủ tiền, cần 1000 đồng để mua trang trại.");
+                return;
+                } else {
+                    document.getElementById("cash2").play();
+                inventory["Đồng"]-= 1000;
+                if (inventory["Đồng"] === 0) delete inventory["Đồng"];
+                if (!statusItems["trang trại"]) {
+                    statusItems["trang trại"] = 1;
+                } else {
+                    statusItems["trang trại"]++;
+                }
+                alert("Xin chúc mừng, bạn đã mở khoá trang trại");
+                updateItems();
+                updateNavigation();
+                updateAttributes();
+                
+            } }
+
+            function eatfood() {
+            if (inventory["trái cây cắt sẵn"] > 0) {
+                document.getElementById("eat1").play();
+                inventory["trái cây cắt sẵn"]--;
+                if (inventory["trái cây cắt sẵn"] === 0) delete inventory["trái cây cắt sẵn"];
+                hunger = Math.min(hunger + 50, 300);
+                if (hunger > 300) hunger = 300;
+                alert("Bạn đã ăn trái cây cắt sẵn và hồi 50 đói.\n+50 Đói");
+                updateItems();
+                updateAttributes();
+                
+            } else {
+                alert("bạn đã hết trái cây")
+                return;
+            }
+        }
+
+        function eatcake() {
+            if (inventory["bánh"] > 0) {
+                document.getElementById("eat2").play();
+                inventory["bánh"]--;
+                if (inventory["bánh"] === 0) delete inventory["bánh"];
+                hunger = Math.min(hunger + 25, 300);
+                if (hunger > 300) hunger = 300;
+                morale = Math.min(morale + 25, 100);
+                if (morale > 100) morale = 100;
+                alert("Bạn đã ăn bịch bánh và hồi 25 đói và tinh thần.\n+25 Đói \n+25 tinh thần");
+                updateItems();
+                updateAttributes();
+                
+            } else {
+                alert("bạn đã hết Bánh")
+                return;
+            }
+        }
+        
+        function drinkcoffe() {
+            if (inventory["Cà phê"] > 0) {
+                document.getElementById("drink").play();
+                inventory["Cà phê"]--;
+                if (inventory["Cà phê"] === 0) delete inventory["Cà phê"];
+                fatigue = Math.min(fatigue - 50, 100);
+                if (fatigue < 0) fatigue = 0;
+                alert("Bạn đã uống Cà phê và giảm 50% mệt mỏi.\n -50 mệt mỏi");
+                updateItems();
+                updateAttributes();
+                
+            } else {
+                alert("bạn đã hết Cà phê")
+                return;
+            }
+        }
+     // HAM tui do an
+        function eatFruit() {
+    // Assuming eatfood() is the function used for eating in the dining room
+    eatfood();
+    // Optionally hide the food options after selection
+    document.getElementById("food-options").style.display = "none";
+}
+function ddrinkcofe() {
+    // Assuming eatfood() is the function used for eating in the dining room
+    drinkcoffe();
+    // Optionally hide the food options after selection
+    document.getElementById("food-options").style.display = "none";
+}
+
+function eecake() {
+    // Assuming eatfood() is the function used for eating in the dining room
+    eatcake();
+    // Optionally hide the food options after selection
+    document.getElementById("food-options").style.display = "none";
+}
+
+        function watchTV() {
+            if (fatigue > 90) {
+                alert("bạn quá mệt mỏi để làm bất cứ điều gì ngoài việc đi ngủ.");
+                return;
+            }
+            lastTVWatch = new Date(currentDate);
+            hunger = Math.min(hunger - 1, 300);
+        if (hunger < 0) hunger = 0;
+            morale = Math.min(morale + 35, 100);
+            fatigue = Math.min(fatigue + 2, 100);
+            updateAttributes();
+            updateActions();
+            updateTime(30);
+            alert("Bạn đã xem tivi để thư giản trong 30 phút.\n+35 Tinh thần \n +2 Mệt mỏi \n -1 Đói.");
+        }
+
+        function sleep(hours) {
+            lastSleep = new Date(currentDate);
+            morale = Math.min(morale + 50, 100);
+            hunger = Math.min(hunger - 5, 300);
+        if (hunger < 0) hunger = 0;
+            fatigue = Math.min(fatigue - 60, 100);
+            if (fatigue < 0) fatigue = 0;
+            updateAttributes();
+            updateActions();
+            updateTime(hours * 60);
+            alert(`Bạn đã ngủ ${hours} giờ và hồi phục mệt mỏi.\n+50 Tinh thần \n -60 Mệt mỏi \n -5 Đói.`);
+        }
+
+        function sleepUntilTomorrow() {
+            const tomorrow = new Date(currentDate);
+            tomorrow.setDate(currentDate.getDate() + 1);
+            tomorrow.setHours(7, 0, 0, 0); // Set to 7:00 AM the next day
+            const minutesToTomorrow = (tomorrow - currentDate) / 1000 / 60;
+            lastSleep = null;
+            fatigue = 0;
+            morale = 100;
+            hunger = Math.min(hunger - 10, 300);
+        if (hunger < 0) hunger = 0;
+            updateAttributes();
+            updateActions();
+            updateTime(minutesToTomorrow);
+            alert("Bạn đã ngủ đến sáng mai và hồi phục mệt mỏi.\n+100 Tinh thần \n -100 Mệt mỏi \n -10 Đói.");
+        }
+
+        function updateAttributes() {
+            if (hunger <= 0) {
+        alert("Nhân vật bạn quá đói và đã chết, GAME OVER.");
+        location.reload(); // Làm mới trang web
+    }
+    document.getElementById("fatigue").innerText = `${fatigue}%`;
+    document.getElementById("morale").innerText = `${morale}%`;
+    document.getElementById("hunger").innerText = `${hunger}`;
+    document.getElementById('Đồng').innerText = inventory['Đồng'] || 0;
+        }
+    
+        
+        
+        window.onload = () => {
+            updateAttributes();
+            updateItems();
+            updateNavigation();
+            updateActions();
+            updateBackground();
+            updateTime(0); // initialize time display
+        };
+        
+
+
+
+    let hours = currentDate.getHours();
+    let mins = currentDate.getMinutes();
+    let ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    hours = hours ? hours : 12; // the hour '0' should be '12'
+    mins = mins < 10 ? '0' + mins : mins;
+    let strTime = hours + ':' + mins + ' ' + ampm;
+    document.getElementById("current-time").innerText = strTime;
+
+    let day = currentDate.getDate();
+    let month = currentDate.getMonth() + 1; // January is 0
+    let year = currentDate.getFullYear();
+    document.getElementById("current-date").innerText = day + '/' + month + '/' + year;
+
+    if (plantTime && (currentDate - plantTime >= 2 * 60 * 60 * 1000)) {
+        updateItems(); // Update the items to show the harvest button if 2 hours have passed
+    }
+
+    if (eggTime1 && (currentDate - eggTime1 >= 6 * 60 * 60 * 1000)) {
+        updateItems(); // Update the items to show the harvest button if 2 hours have passed
+    }
+
+    if (eggTime2 && (currentDate - eggTime2 >= 6 * 60 * 60 * 1000)) {
+        updateItems(); // Update the items to show the harvest button if 2 hours have passed
+    }
+
+    if (eggTime3 && (currentDate - eggTime3 >= 6 * 60 * 60 * 1000)) {
+        updateItems(); // Update the items to show the harvest button if 2 hours have passed
+    }
+
+    if (eggTime4 && (currentDate - eggTime4 >= 6 * 60 * 60 * 1000)) {
+        updateItems(); // Update the items to show the harvest button if 2 hours have passed
+    }
+
+    if (eggTime5 && (currentDate - eggTime5 >= 6 * 60 * 60 * 1000)) {
+        updateItems(); // Update the items to show the harvest button if 2 hours have passed
+    }
+
+    if (milkTime1 && (currentDate - milkTime1 >= 8 * 60 * 60 * 1000)) {
+        updateItems(); // Update the items to show the harvest button if 2 hours have passed
+    }
+    if (milkTime2 && (currentDate - milkTime1 >= 8 * 60 * 60 * 1000)) {
+        updateItems(); // Update the items to show the harvest button if 2 hours have passed
+    }
+    if (milkTime3 && (currentDate - milkTime1 >= 8 * 60 * 60 * 1000)) {
+        updateItems(); // Update the items to show the harvest button if 2 hours have passed
+    }
+    if (milkTime4 && (currentDate - milkTime1 >= 8 * 60 * 60 * 1000)) {
+        updateItems(); // Update the items to show the harvest button if 2 hours have passed
+    }
+    if (milkTime5 && (currentDate - milkTime1 >= 8 * 60 * 60 * 1000)) {
+        updateItems(); // Update the items to show the harvest button if 2 hours have passed
+    }
+
+    function showGuide() {
+            alert("Hint: Mỗi lần di chuyển các phòng sẽ +1% mệt mỏi, tương tác với các nút được hiển thị để thực hiện các hành động <lấy, sử dung, bán, v.v..vật phẩm>,");
+            alert("Thời gian chỉ hiện thị ở <phòng khách> và <Xe>, hãy mua đồng hồ đeo tay ở siêu thị để có thể hiện thị bất cứ đâu");
+            alert("Mở rộng khu vực chơi tại siêu thị > Nâng cấp {hiện tại chỉ có trang trại..sẽ có thêm ở những bản cập nhật sau<WIP>..}");
+            alert("Chú ý đến trạng thái <Đói> của nhân vật,khi trong túi đồ có sản phẩm là trái cây hoặc đồ có thể ăn được hãy cho nhân vật ăn tại <phòng ăn> hoặc trong <túi đồ ăn>=><nâng cấp>");
+            alert("Nếu để thanh đói về 0 trò chơi sẽ kết thúc và sẽ phải bắt đầu lại.\nHave Fun :3!")
+        }
+
+        //CHANGELOG
+        // Get the modal
+const modal = document.getElementById("changelog-modal");
+
+// Get the button that opens the modal
+const btn = document.getElementById("changelog-button");
+
+// Get the <span> element that closes the modal
+const span = document.getElementsByClassName("close")[0];
+
+// When the user clicks the button, open the modal 
+btn.onclick = function() {
+    modal.style.display = "block";
+    // Set the changelog content
+    document.getElementById("changelog-content").innerHTML = `
+        <ul>
+            <!-- Add more changelog items as needed --> 
+            <li>v0.2.1 - cập nhật cơ chế câu cá, sử dụng các phím (w,a,s,d) => (^,<,v,>)  để thực hiện chuỗi hành động để câu cá trong 10 giây, mỗi lần thao tác sai sẽ mất 15% tỉ lệ bắt được cá</li>
+            <li>v0.2.0 - cập nhật nông trại, có thể nuôi gà và bò để lấy trứng và sữa(WIP), thanh đói từ 100% sang 300(MAX) đơn vị đói.</li>
+            <li>v0.1.3 - thêm nút "Đồ ăn" kế bên nút "Dụng cụ" cho phép nhân vật có thể ăn, uống bất cứ đâu và thêm máy pha cà phê "siêu thị" và "gói cà phê" có thể làm thành ly cà phê,sử dụng để giãm mệt mỏi.</li>
+            <li>v0.1.2Hotfix - sửa lỗi hiển thị ở changelog gây mất chữ ở thông tin cập nhật</li>
+            <li>v0.1.2 - thêm chức năng kết thúc trò chơi khi Thanh đói 0%</li>
+            <li>v0.1.1 - thời gian sẽ chỉ hiện ở phòng khách và xe, cần có đồng hồ để hiển thị ở tất cả khu vực. </li>
+            <li>v0.1.0 - Thêm khả năng Save,Load cho trò chơi</li>
+            <li>v0.0.12 - thêm nút "Dụng cụ" để cho các vật phẩm như "khoá xe, khoá kho, dao, dụng cụ làm vườn v.v.." vì là những vật phẩm chỉ cần sở hữu 1. </li>
+            <li>v0.0.11 - Thêm thanh "Đói" và tính logic khi thực hiện các công việt như trồng cây, câu cá v.v...</li>
+            <li>v0.0.10 - tạo các nút options để hiện ra thêm các lựa chọn khi tương tác một nút bấm "siêu thị" </li>
+            <li>v0.0.9 - tạo hình nền phía sau trò chơi, khi di chuyển đến các phòng khác nhau cũng sẽ thay đổi theo.</li>
+            <li>v0.0.8 - tạo trang trại mua tại siêu thị </li>
+            <li>v0.0.7 - tạo siêu thị, nơi có thể mua các vật phẩm như hạt giống, cần câu các vật hũu ích khác..</li>
+            <li>v0.0.6 - tạo phương tiện di chuyển "Xe" yêu cầu người chơi phải tìm "chìa khoá xe" để có thể vào trong </li>
+            <li>v0.0.5 - tạo thanh trạng thái gồm "Tinh Thần" và "Mệt mỏi" và tính logic </li>
+            <li>v0.0.4 - thêm gian hàng nơi có thể bán vật phẩm chỉ định để đổi lấy tiền "Đồng"
+            <li>v0.0.3 - thêm khả năng,câu cá, trồng cây, thu hoạch sau một khoảng thời gian nhất định</li>
+            <li>v0.0.2 - thêm thời gian vào trò chơi và tính logic của thời gian khi di chuyển từng phòng khác nhau</li>
+            <li>v0.0.1 - Hiển thị các phòng dưới dạng nút bấm button: Phòng khách, Phòng ngủ, Nhà bếp, Phòng ăn, Kho thêm tính logic khi di chuyển tới các phòng khác nhau, ví dụ khi ở "nhà bếp" thì chỉ có thể đi đến "phòng khách" và "phòng ăn" v.v.. </li>
+            <li>v0.0.0 - game được tạo ra bởi Jaroda#3858 :3</li>
+            
+        </ul>
+    `;
+}
+/* == "nhà bếp") {
+                document.getElementById("btn-phong-khach").style.display = "inline";
+                document.getElementById("btn-phong-an").style.display = "inline";
+            } else if (currentRoom === "phòng ăn") {
+                document.getElementById("btn-nha-bep").style.display = "inline";
+                document.getElementById("btn-kho").sty
+*/ 
+span.onclick = function() {
+    modal.style.display = "none";
+}
+
+// When the user clicks anywhere outside of the modal, close it
+window.onclick = function(event) {
+    if (event.target == modal) {
+        modal.style.display = "none";
+    }
+}
+
+
+    </script>
+</body>
+</html>
 
