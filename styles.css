@@ -256,3 +256,17 @@ body {
 .incorrect {
     color: red;
 }
+
+.new-tab-link {
+    display: inline-block;
+    
+    color: white;
+    background-color: #23bd0f;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+    
+}
+
+.new-tab-link:hover {
+    background-color: #5b8b00;
+}
